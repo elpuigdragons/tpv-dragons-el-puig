@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dragons El Puig · TPV Móvil Avanzado</title>
+    <title>Dragons El Puig · TPV Real Google Sheets</title>
     <script src="https://cdn.jsdelivr.net/npm/tailwindcss-cdn@3.4.10/tailwindcss.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -24,14 +24,19 @@
             </div>
             <div>
                 <h1 class="text-base font-extrabold tracking-tight text-white flex items-center gap-2">
-                    Dragons El Puig <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">TPV Móvil</span>
+                    Dragons El Puig <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">TPV Live</span>
                 </h1>
-                <p class="text-[11px] text-slate-400 font-medium" id="header-stock-counter">Cargando stock...</p>
+                <p class="text-[11px] text-slate-400 font-medium" id="header-stock-counter">Conectando con Google Sheets...</p>
             </div>
         </div>
-        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            <span class="w-1.5 h-1.5 mr-1.5 bg-emerald-500 rounded-full animate-ping"></span> Online
-        </span>
+        <div class="flex items-center space-x-2">
+            <button onclick="loadInventoryFromSheet()" title="Sincronizar Stock" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 p-2 rounded-xl text-xs transition cursor-pointer">
+                <i class="fa-solid fa-sync" id="sync-icon"></i>
+            </button>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span class="w-1.5 h-1.5 mr-1.5 bg-emerald-500 rounded-full animate-ping"></span> Online
+            </span>
+        </div>
     </header>
 
     <!-- Navegación -->
@@ -40,7 +45,7 @@
             <i class="fa-solid fa-cash-register"></i> <span>Caja / TPV</span>
         </button>
         <button onclick="switchTab('inventory')" id="btn-inventory" class="py-3 px-4 font-bold text-xs uppercase tracking-wider border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2 cursor-pointer transition whitespace-nowrap">
-            <i class="fa-solid fa-boxes-stacked"></i> <span>Inventario (285)</span>
+            <i class="fa-solid fa-boxes-stacked"></i> <span>Inventario y Proveedores</span>
         </button>
         <button onclick="switchTab('sales')" id="btn-sales" class="py-3 px-4 font-bold text-xs uppercase tracking-wider border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2 cursor-pointer transition whitespace-nowrap">
             <i class="fa-solid fa-chart-line"></i> <span>Ventas</span>
@@ -54,7 +59,6 @@
         <section id="tab-tpv" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="lg:col-span-2 bg-[#111827] rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-2xl space-y-4">
                 
-                <!-- Barra superior con botón de menú de filtros -->
                 <div class="flex justify-between items-center bg-[#090d16] p-3 rounded-2xl border border-slate-800">
                     <div class="flex items-center space-x-2">
                         <i class="fa-solid fa-filter text-cyan-400 text-sm"></i>
@@ -66,7 +70,6 @@
                     </button>
                 </div>
 
-                <!-- Listado de productos filtrados -->
                 <div class="space-y-2 pt-2">
                     <div class="flex justify-between items-center">
                         <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Artículos Disponibles (Pulsa para añadir)</h3>
@@ -89,7 +92,6 @@
                         </div>
                     </div>
 
-                    <!-- Galletas Tipo de Venta -->
                     <div class="space-y-1.5 pt-2 border-t border-slate-800">
                         <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tipo de Venta (Aplica a todo)</label>
                         <div class="grid grid-cols-2 gap-2">
@@ -103,8 +105,8 @@
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Vendedor</label>
-                        <input type="text" id="seller-user" value="ramontar@gmail.com" class="w-full bg-[#090d16] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Vendedor (Email Autorizado)</label>
+                        <input type="email" id="seller-user" value="ramontar@gmail.com" class="w-full bg-[#090d16] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
                     </div>
 
                     <div class="pt-3 border-t border-slate-800/80 space-y-1.5 text-sm">
@@ -123,7 +125,7 @@
                     </div>
                 </div>
 
-                <button onclick="completeSale()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider py-3.5 rounded-2xl shadow-lg shadow-emerald-500/20 cursor-pointer transition transform active:scale-[0.98]">
+                <button onclick="completeSale()" id="btn-checkout" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider py-3.5 rounded-2xl shadow-lg shadow-emerald-500/20 cursor-pointer transition transform active:scale-[0.98]">
                     <i class="fa-solid fa-check-circle mr-1.5"></i> Cobrar y Registrar Todo
                 </button>
             </div>
@@ -134,12 +136,14 @@
             <div class="space-y-3 border-b border-slate-800 pb-4">
                 <div class="flex justify-between items-center">
                     <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center space-x-2">
-                        <i class="fa-solid fa-warehouse text-cyan-400"></i> <span>Control de Inventario Unitario</span>
+                        <i class="fa-solid fa-warehouse text-cyan-400"></i> <span>Control de Inventario y Liquidación por Proveedor</span>
                     </h2>
                     <span id="inv-showing-count" class="text-xs font-mono text-slate-400"></span>
                 </div>
-                <div id="inv-category-chips" class="flex flex-wrap gap-1.5"></div>
-                <div id="inv-subfilter-chips" class="flex flex-wrap gap-1.5"></div>
+                <div class="flex flex-col sm:flex-row gap-2 justify-between">
+                    <div id="inv-category-chips" class="flex flex-wrap gap-1.5"></div>
+                    <div id="inv-supplier-chips" class="flex flex-wrap gap-1.5"></div>
+                </div>
             </div>
 
             <div class="overflow-x-auto max-h-[550px]">
@@ -149,6 +153,7 @@
                             <th class="p-3">ID</th>
                             <th class="p-3">Descripción</th>
                             <th class="p-3">Categoría</th>
+                            <th class="p-3">Proveedor</th>
                             <th class="p-3">Precio</th>
                             <th class="p-3">Estado</th>
                         </tr>
@@ -162,7 +167,7 @@
         <section id="tab-sales" class="hidden bg-[#111827] rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-2xl space-y-5">
             <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-slate-800 pb-4">
                 <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center space-x-2">
-                    <i class="fa-solid fa-chart-line text-emerald-400"></i> <span>Historial de Ventas y Anulaciones</span>
+                    <i class="fa-solid fa-chart-line text-emerald-400"></i> <span>Historial de Ventas y Liquidaciones</span>
                 </h2>
                 
                 <div class="grid grid-cols-2 gap-2.5 w-full lg:w-auto">
@@ -194,6 +199,7 @@
                         <tr>
                             <th class="p-3">ID</th>
                             <th class="p-3">Artículo</th>
+                            <th class="p-3">Proveedor</th>
                             <th class="p-3">Fecha</th>
                             <th class="p-3">Tipo</th>
                             <th class="p-3">Vendedor</th>
@@ -220,13 +226,11 @@
                 </button>
             </div>
 
-            <!-- Galletas de Categorías en el Modal -->
             <div class="space-y-2">
                 <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">1. Seleccionar Categoría</label>
                 <div id="modal-category-chips" class="flex flex-wrap gap-2"></div>
             </div>
 
-            <!-- Galletas de Color / Variante en el Modal -->
             <div class="space-y-2">
                 <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">2. Filtrar por Color / Subtipo</label>
                 <div id="modal-subfilter-chips" class="flex flex-wrap gap-1.5">
@@ -234,7 +238,6 @@
                 </div>
             </div>
 
-            <!-- Botón Aplicar y Cerrar -->
             <button onclick="applyAndCloseFilters()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider py-3.5 rounded-2xl shadow-lg shadow-cyan-500/20 cursor-pointer transition">
                 Aplicar Filtros y Ver Resultados
             </button>
@@ -242,109 +245,19 @@
     </div>
 
     <script>
-        const rawCatalog = [
-            ["VM-PGH Glass Fiber Sticks Youth VERDE LEFT", "Palos", 45, 3],
-            ["VM-PGH Glass Fiber Sticks Youth VERDE RIGHT", "Palos", 45, 1],
-            ["VM-PGH Glass Fiber Sticks Youth ROSA LEFT", "Palos", 45, 1],
-            ["VM-PGH Glass Fiber Sticks Youth ROSA RIGHT", "Palos", 45, 1],
-            ["VM-PGH Glass Fiber Sticks Youth SILVER RIGHT", "Palos", 45, 1],
-            ["VM-PGS Glass Fiber Sticks Junior AMARILLO LEFT", "Palos", 55, 2],
-            ["VM-PGS Glass Fiber Sticks Junior AMARILLO RIGHT", "Palos", 55, 1],
-            ["VM-PGS Glass Fiber Sticks Junior AZUL LEFT", "Palos", 55, 2],
-            ["VM-PGS Glass Fiber Sticks Junior AZUL RIGHT", "Palos", 55, 1],
-            ["VM-PHYT Full Carbon Stick Youth AMARILLO LEFT", "Palos", 75, 2],
-            ["VM-PHJR Full Carbon Stick INT AZUL LEFT", "Palos", 95, 1],
-            ["VM-PHJR Full Carbon Stick INT AZUL RIGHT", "Palos", 95, 1],
-            ["VM-PHSR7 Full Carbon Stick Senior VERDE LEFT", "Palos", 125, 1],
-            ["VM-PHSR7 Full Carbon Stick Senior VERDE RIGHT", "Palos", 125, 1],
-            ["VM-COACH Full Carbon Stick Senior LEFT", "Palos", 110, 1],
-            ["TACKLA XD350 FLEX INT Flex 55 LEFT", "Palos", 89, 1],
-            ["TACKLA XD350 FLEX INT Flex 55 RIGHT", "Palos", 89, 1],
-            ["VM-GCS Carbon Golie Stick 21\"", "Portero", 95, 1],
-            ["VM-GCS Carbon Golie Stick 22\"", "Portero", 99, 1],
-            ["TACKLA Composite Goalie Stick 22\"", "Portero", 115, 1],
-            ["VM-PJR Tirantes portero", "Portero", 22, 2],
-            ["Patines Hockey Linea Victory X3 PRO JR #33", "Patines", 118, 1],
-            ["Patines Hockey Linea Victory X3 PRO SR #42", "Patines", 135, 1],
-            ["Patines Hockey Linea Victory X8 ProLeague #38", "Patines", 210, 1],
-            ["Patines Hockey Linea Graff MAXX19 #41", "Patines", 185, 1],
-            ["VM-KPTN Trolley Vertical 46x36 cuatro ruedas AZUL", "Bolsas y Transporte", 79, 1],
-            ["VM-KPTN Trolley Vertical 46x36 cuatro ruedas NARANJA", "Bolsas y Transporte", 79, 1],
-            ["VM-GEQB Trolley portero 96x55x54 NEGRO", "Bolsas y Transporte", 129, 1],
-            ["Bolsa Stick", "Bolsas y Transporte", 28, 2],
-            ["Espinilleras VM-PJR 9\"", "Protecciones", 38, 1],
-            ["Espinilleras VM-PJR 10\"", "Protecciones", 38, 1],
-            ["Espinilleras VM-PJR 11\"", "Protecciones", 38, 1],
-            ["Espinilleras VM-PSR 11\"", "Protecciones", 45, 1],
-            ["Espinilleras VM-PSR 13\"", "Protecciones", 45, 1],
-            ["Espinilleras VM-PSR 14\"", "Protecciones", 45, 1],
-            ["VM IHP-2 Girdle YT-M", "Protecciones", 42, 1],
-            ["VM IHP-2 Girdle JR-S", "Protecciones", 46, 1],
-            ["VM IHP-2 Girdle JR-M", "Protecciones", 46, 1],
-            ["VM IHP-2 Girdle SR-L", "Protecciones", 54, 1],
-            ["Girdle TACKLA RSP JR-S", "Protecciones", 49, 1],
-            ["Girdle TACKLA IHP-1 JR-M", "Protecciones", 49, 1],
-            ["Girdle TACKLA IHP SR-S", "Protecciones", 55, 1],
-            ["VM-PJR Guantes 9\"", "Protecciones", 44, 1],
-            ["VM-PJR Guantes 10\"", "Protecciones", 44, 1],
-            ["VM-PJR Guantes 11\"", "Protecciones", 44, 1],
-            ["VM-PSR Guantes 12\"", "Protecciones", 52, 1],
-            ["TACKLA TK-1000X Guantes 8\"", "Protecciones", 48, 1],
-            ["TACKLA TK-1000X Guantes 13\"", "Protecciones", 58, 1],
-            ["TACKLA TK-1000X Guantes 14\"", "Protecciones", 58, 1],
-            ["TACKLA TK-851 Coderas JR-S", "Protecciones", 32, 1],
-            ["VM-PJR coderas YT-M", "Protecciones", 28, 1],
-            ["VM-PJR coderas JR-S", "Protecciones", 28, 1],
-            ["VM-PJR coderas JR-M", "Protecciones", 28, 1],
-            ["VM-SR-EP coderas JR-M", "Protecciones", 34, 1],
-            ["VM-SR-EP coderas JR-L", "Protecciones", 34, 1],
-            ["VM-SR-EP coderas SR-S", "Protecciones", 36, 1],
-            ["VM-SR-EP coderas SR-M", "Protecciones", 36, 1],
-            ["VM-SR-EP coderas SR-L", "Protecciones", 36, 1],
-            ["PHV Casco NEGRO Talla M", "Protecciones", 65, 2],
-            ["PHV Casco NEGRO Talla L", "Protecciones", 65, 1],
-            ["PHV Casco BLANCO Talla S", "Protecciones", 65, 1],
-            ["PHV Casco BLANCO Talla M", "Protecciones", 65, 1],
-            ["PHV Casco BLANCO Talla L", "Protecciones", 65, 1],
-            ["VM-NG Protector cuello", "Protecciones", 19, 2],
-            ["Pack bolas desodorantes negras (2uds)", "Accesorios", 8, 12],
-            ["Cinta Stick algodón BLANCO", "Accesorios", 4.5, 10],
-            ["Cinta Stick algodón NEGRO", "Accesorios", 4.5, 10],
-            ["Puck hockey linea HD Negro/Blanco", "Accesorios", 9, 20],
-            ["Ruedas VM-DBW GOALIE VERDE 59mm", "Accesorios", 9.5, 24],
-            ["Ruedas VM-DBW VERDE 64mm", "Accesorios", 9.5, 8],
-            ["Ruedas VM-DBW ProLeague VERDE 68mm", "Accesorios", 11, 8],
-            ["Ruedas VM-DBW ProLeague VERDE 72mm", "Accesorios", 11, 8],
-            ["Ruedas VM-DBW ProLeague VERDE 76mm", "Accesorios", 11, 8],
-            ["Ruedas VM-DBW ProLeague VERDE 80mm", "Accesorios", 11, 8],
-            ["Ruedas VM-DBW ProLeague BLANCO 68mm", "Accesorios", 11, 8],
-            ["Ruedas VM-DBW ProLeague BLANCO 72mm", "Accesorios", 11, 8],
-            ["Ruedas VM-DBW ProLeague BLANCO 76mm", "Accesorios", 11, 8],
-            ["Ruedas VM-DBW ProLeague BLANCO 80mm", "Accesorios", 11, 8],
-            ["Ruedas OPTIMUS ROJA 72mm", "Accesorios", 10, 8],
-            ["Ruedas OPTIMUS ROJA 76mm", "Accesorios", 10, 8],
-            ["Ruedas OPTIMUS ROJA 80mm", "Accesorios", 10, 8],
-            ["GRAFF 78A Hybrid 68mm", "Accesorios", 8.5, 8],
-            ["GRAFF 78A Hybrid 72mm", "Accesorios", 8.5, 8],
-            ["GRAFF 78A Hybrid 76mm", "Accesorios", 8.5, 8],
-            ["GRAFF 78A Hybrid 80mm - 64mm", "Accesorios", 8.5, 8],
-            ["Protector pala silicona BLANCO", "Accesorios", 12, 10],
-            ["Rodamientos VikMax Chromo (pack 16uds)", "Accesorios", 24, 4],
-            ["Cordones Patines Hockey Waxed 183cm 6 colores", "Accesorios", 6, 6],
-            ["Cordones Patines Hockey Waxed 214cm 6 colores", "Accesorios", 6, 6],
-            ["Cordones Patines Hockey Waxed 244cm 6 colores", "Accesorios", 6, 5],
-            ["Cordones Patines Hockey Waxed 174cm 6 colores", "Accesorios", 6, 6],
-            ["Cordones Patines Hockey Waxed 305cm 6 colores", "Accesorios", 6.5, 2],
-            ["Cordones Patines Hockey Waxed 330cm 6 colores", "Accesorios", 6.5, 4],
-            ["Cordones Patines Hockey No Waxed 183cm 6 colores", "Accesorios", 5, 5],
-            ["Cordones Patines Hockey No Waxed 214cm 6 colores", "Accesorios", 5, 5],
-            ["Cordones Patines Hockey No Waxed 244cm 6 colores", "Accesorios", 5, 3],
-            ["Cordones Patines Hockey No Waxed 174cm 6 colores", "Accesorios", 5, 3],
-            ["Cordones Patines Hockey No Waxed 305cm 6 colores", "Accesorios", 5.5, 5],
-            ["Cordones Patines Hockey No Waxed 330cm 5 colores", "Accesorios", 5.5, 5]
-        ];
+        // ⚠️ PEGA AQUÍ LA URL DE TU APLICACIÓN WEB DE GOOGLE APPS SCRIPT
+        const WEB_APP_URL = "https://script.google.com/macros/s/TU_URL_DE_APPS_SCRIPT_AQUI/exec";
+
+        let inventory = [];
+        let cart = [];
+        let selectedCategory = '';
+        let selectedTag = '';
+        let saleType = 'Fuera';
+        let invCategory = '';
+        let invSupplier = '';
 
         function extractTag(desc, cat) {
+            if (!desc) return 'Estándar';
             const d = desc.toUpperCase();
             if (d.includes('VERDE')) return 'Verde';
             if (d.includes('ROSA')) return 'Rosa';
@@ -373,33 +286,51 @@
             return 'Estándar';
         }
 
-        let inventory = [];
-        let counter = 1;
-        rawCatalog.forEach(([desc, category, price, qty]) => {
-            for (let i = 0; i < qty; i++) {
-                inventory.push({
-                    id: 'HOCK-' + String(counter).padStart(3, '0'),
-                    desc,
-                    category,
-                    price,
-                    discount: 15,
-                    tag: extractTag(desc, category),
-                    available: true,
-                    saleDate: '',
-                    saleType: '',
-                    seller: '',
-                    finalPrice: 0
-                });
-                counter++;
-            }
-        });
+        // --- CARGAR INVENTARIO DESDE GOOGLE SHEETS ---
+        async function loadInventoryFromSheet() {
+            const counterEl = document.getElementById('header-stock-counter');
+            const syncIcon = document.getElementById('sync-icon');
+            counterEl.textContent = "Sincronizando con Google Sheets...";
+            if(syncIcon) syncIcon.classList.add('fa-spin');
 
-        let cart = [];
-        let selectedCategory = '';
-        let selectedTag = '';
-        let saleType = 'Fuera';
-        let invCategory = '';
-        let invTag = '';
+            try {
+                const response = await fetch(WEB_APP_URL);
+                const rows = await response.json();
+                
+                inventory = rows.map(row => {
+                    const isAvailable = row['Disponible'] ? row['Disponible'].toString().toUpperCase().includes('S') : true;
+                    return {
+                        id: row['ID'] || '',
+                        supplier: row['Albarán Proveedor'] || row['Proveedor'] || 'General',
+                        desc: row['Descripción'] || '',
+                        category: row['Categoría'] || 'General',
+                        price: parseFloat(row['Precio Venta']) || 0,
+                        discount: 15,
+                        tag: extractTag(row['Descripción'], row['Categoría']),
+                        available: isAvailable,
+                        saleDate: row['Fecha Venta'] || '',
+                        saleType: row['Tipo Cliente'] || '',
+                        seller: row['Vendido Por'] || '',
+                        finalPrice: parseFloat(row['Precio Final']) || 0
+                    };
+                });
+
+                updateHeaderStock();
+                filterTpvProducts();
+                if(document.getElementById('tab-inventory').classList.contains('hidden') === false) {
+                    renderInvChips();
+                }
+                if(document.getElementById('tab-sales').classList.contains('hidden') === false) {
+                    renderSales();
+                }
+            } catch (error) {
+                console.error("Error al cargar inventario:", error);
+                counterEl.textContent = "Error de conexión con Sheets";
+                alert("No se pudo conectar con Google Sheets. Comprueba la URL de Apps Script.");
+            } finally {
+                if(syncIcon) syncIcon.classList.remove('fa-spin');
+            }
+        }
 
         function updateHeaderStock() {
             const avail = inventory.filter(p => p.available).length;
@@ -419,7 +350,6 @@
             if(tabId === 'sales') renderSales();
         }
 
-        // --- CONTROL DEL MODAL DE FILTROS ---
         function toggleFilterModal(open) {
             const modal = document.getElementById('filter-modal');
             if (open) {
@@ -456,7 +386,8 @@
                 container.innerHTML = `<span class="text-xs text-slate-500 italic py-1">Selecciona una categoría arriba...</span>`;
                 return;
             }
-            const items = inventory.filter(p => p.category === selectedCategory && p.available);
+            const availableNotCart = inventory.filter(p => p.available && !cart.some(c => c.id === p.id));
+            const items = availableNotCart.filter(p => p.category === selectedCategory);
             const tags = [...new Set(items.map(p => p.tag))];
 
             container.innerHTML = `<button onclick="selectModalTag('')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${selectedTag === '' ? 'bg-blue-600 text-white' : 'bg-[#090d16] text-slate-400 border border-slate-800'}">Todos</button>` +
@@ -474,17 +405,14 @@
 
         function applyAndCloseFilters() {
             toggleFilterModal(false);
-            
-            // Actualizar etiqueta resumen en pantalla principal
             let label = selectedCategory || 'Todas las categorías';
             if (selectedTag) label += ` (${selectedTag})`;
             document.getElementById('active-filter-label').textContent = label;
-
             filterTpvProducts();
         }
 
         function filterTpvProducts() {
-            let filtered = inventory.filter(p => p.available);
+            let filtered = inventory.filter(p => p.available && !cart.some(c => c.id === p.id));
             if (selectedCategory) filtered = filtered.filter(p => p.category === selectedCategory);
             if (selectedTag) filtered = filtered.filter(p => p.tag === selectedTag);
 
@@ -508,6 +436,7 @@
                         <div class="flex items-center gap-2">
                             <span class="text-[10px] text-cyan-400 font-mono font-extrabold">${sample.category}</span>
                             <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-semibold">${count} disp.</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">${sample.supplier}</span>
                         </div>
                         <h4 class="text-xs font-bold text-white group-hover:text-cyan-300 transition mt-1">${sample.desc}</h4>
                         <span class="text-[11px] text-slate-400"><span class="font-mono text-slate-200">${sample.price.toFixed(2)} €</span></span>
@@ -528,11 +457,13 @@
             }
             cart.push(product);
             renderCart();
+            filterTpvProducts();
         }
 
         function removeFromCart(id) {
             cart = cart.filter(p => p.id !== id);
             renderCart();
+            filterTpvProducts();
         }
 
         function renderCart() {
@@ -552,7 +483,7 @@
                         <div class="pr-2">
                             <span class="text-[10px] text-cyan-400 font-mono font-bold">${item.id}</span>
                             <p class="font-bold text-white line-clamp-1">${item.desc}</p>
-                            <span class="text-[11px] text-emerald-400 font-mono">${finalP.toFixed(2)} €</span>
+                            <span class="text-[11px] text-emerald-400 font-mono">${finalP.toFixed(2)} € (${item.supplier})</span>
                         </div>
                         <button onclick="removeFromCart('${item.id}')" class="text-rose-400 hover:text-rose-300 p-1.5 cursor-pointer">
                             <i class="fa-solid fa-trash"></i>
@@ -594,67 +525,81 @@
             document.getElementById('summary-total').textContent = totalSum.toFixed(2) + ' €';
         }
 
-        function completeSale() {
+        // --- REGISTRAR VENTA EN GOOGLE SHEETS (CON LISTA BLANCA) ---
+        async function completeSale() {
             if (cart.length === 0) return alert('El carrito está vacío. Añade algún producto.');
-            const seller = document.getElementById('seller-user').value;
-            const today = new Date().toISOString().split('T')[0];
+            const sellerInput = document.getElementById('seller-user').value.trim();
+            if (!sellerInput) return alert('Por favor, introduce tu correo de vendedor.');
+
             const isClub = saleType === 'Club';
+            
+            // Preparar items con sus precios finales calculados
+            const itemsPayload = cart.map(item => ({
+                id: item.id,
+                finalPrice: item.price - (isClub ? (item.price * item.discount / 100) : 0)
+            }));
 
-            cart.forEach(item => {
-                item.available = false;
-                item.saleDate = today;
-                item.saleType = saleType;
-                item.seller = seller;
-                item.finalPrice = item.price - (isClub ? (item.price * item.discount / 100) : 0);
-            });
+            const btnCheckout = document.getElementById('btn-checkout');
+            btnCheckout.disabled = true;
+            btnCheckout.textContent = "Registrando en Google Sheets...";
 
-            alert(`¡Venta de ${cart.length} artículos registrada con éxito!`);
-            cart = [];
-            renderCart();
-            updateHeaderStock();
-            filterTpvProducts();
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Evita problemas de CORS preflight en Apps Script
+                    body: JSON.stringify({
+                        items: itemsPayload,
+                        saleType: saleType,
+                        seller: sellerInput
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    alert(`¡Venta de ${cart.length} artículos registrada con éxito en Google Sheets!`);
+                    cart = [];
+                    renderCart();
+                    loadInventoryFromSheet(); // Recargar stock actualizado desde la hoja
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error("Error en el registro:", error);
+                alert("Error de comunicación con el servidor al registrar la venta.");
+            } finally {
+                btnCheckout.disabled = false;
+                btnCheckout.innerHTML = `<i class="fa-solid fa-check-circle mr-1.5"></i> Cobrar y Registrar Todo`;
+            }
         }
 
         function undoSale(id) {
-            const item = inventory.find(p => p.id === id);
-            if (!item) return;
-            if (confirm(`¿Anular venta de ${item.id} (${item.desc}) y devolverlo a stock?`)) {
-                item.available = true;
-                item.saleDate = '';
-                item.saleType = '';
-                item.seller = '';
-                item.finalPrice = 0;
-                updateHeaderStock();
-                renderSales();
-                filterTpvProducts();
-            }
+            alert("Para anular una venta y devolver el artículo a disponible, edita temporalmente la celda 'Disponible' a 'SÍ' en tu Google Sheet.");
         }
 
+        // --- INVENTARIO CON FILTRO DE PROVEEDOR ---
         function renderInvChips() {
             const categories = [...new Set(inventory.map(p => p.category))];
+            const suppliers = [...new Set(inventory.map(p => p.supplier))];
+
             document.getElementById('inv-category-chips').innerHTML = 
-                `<button onclick="selectInvCat('')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${invCategory === '' ? 'bg-cyan-500 text-slate-950' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">Todas</button>` +
+                `<button onclick="selectInvCat('')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${invCategory === '' ? 'bg-cyan-500 text-slate-950' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">Todas Cat.</button>` +
                 categories.map(cat => `<button onclick="selectInvCat('${cat}')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${invCategory === cat ? 'bg-cyan-500 text-slate-950' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">${cat}</button>`).join('');
             
-            const subContainer = document.getElementById('inv-subfilter-chips');
-            if (!invCategory) {
-                subContainer.innerHTML = '';
-            } else {
-                const tags = [...new Set(inventory.filter(p => p.category === invCategory).map(p => p.tag))];
-                subContainer.innerHTML = 
-                    `<button onclick="selectInvTag('')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition cursor-pointer ${invTag === '' ? 'bg-blue-600 text-white' : 'bg-[#090d16] text-slate-400 border border-slate-800'}">Todos</button>` +
-                    tags.map(t => `<button onclick="selectInvTag('${t}')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition cursor-pointer ${invTag === t ? 'bg-blue-600 text-white' : 'bg-[#090d16] text-slate-400 border border-slate-800'}">${t}</button>`).join('');
-            }
+            document.getElementById('inv-supplier-chips').innerHTML = 
+                `<button onclick="selectInvSupp('')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${invSupplier === '' ? 'bg-blue-600 text-white' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">Todos Prov.</button>` +
+                suppliers.map(s => `<button onclick="selectInvSupp('${s}')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${invSupplier === s ? 'bg-blue-600 text-white' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">${s}</button>`).join('');
+
             renderInventory();
         }
 
-        function selectInvCat(cat) { invCategory = cat; invTag = ''; renderInvChips(); }
-        function selectInvTag(tag) { invTag = tag; renderInvChips(); }
+        function selectInvCat(cat) { invCategory = cat; renderInvChips(); }
+        function selectInvSupp(supp) { invSupplier = supp; renderInvChips(); }
 
         function renderInventory() {
             let list = inventory;
             if (invCategory) list = list.filter(p => p.category === invCategory);
-            if (invTag) list = list.filter(p => p.tag === invTag);
+            if (invSupplier) list = list.filter(p => p.supplier === invSupplier);
 
             document.getElementById('inv-showing-count').textContent = `Mostrando ${list.length} uds`;
             document.getElementById('inventory-table-body').innerHTML = list.map(p => `
@@ -662,6 +607,7 @@
                     <td class="p-3 font-mono text-cyan-400 font-semibold">${p.id}</td>
                     <td class="p-3 text-white font-medium">${p.desc}</td>
                     <td class="p-3 text-slate-400">${p.category}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">${p.supplier}</span></td>
                     <td class="p-3 font-mono">${p.price.toFixed(2)} €</td>
                     <td class="p-3">
                         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${p.available ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">
@@ -685,29 +631,27 @@
 
             const tbody = document.getElementById('sales-table-body');
             if (sales.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500 text-xs">No hay ventas registradas en este filtro.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500 text-xs">No hay ventas registradas en este filtro.</td></tr>`;
                 return;
             }
             tbody.innerHTML = sales.map(p => `
                 <tr class="hover:bg-slate-800/40 transition">
                     <td class="p-3 font-mono text-cyan-400 font-semibold">${p.id}</td>
                     <td class="p-3 text-white font-medium">${p.desc}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">${p.supplier}</span></td>
                     <td class="p-3 font-mono text-slate-400">${p.saleDate}</td>
                     <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#090d16] border border-slate-800 text-cyan-300">${p.saleType}</span></td>
                     <td class="p-3 text-slate-400">${p.seller}</td>
                     <td class="p-3 font-mono font-bold text-emerald-400">${p.finalPrice.toFixed(2)} €</td>
                     <td class="p-3 text-center">
-                        <button onclick="undoSale('${p.id}')" class="bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-slate-950 border border-rose-500/20 px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer">
-                            <i class="fa-solid fa-rotate-left"></i> Deshacer
-                        </button>
+                        <span class="text-[10px] text-slate-500">Gestionar en Sheets</span>
                     </td>
                 </tr>
             `).join('');
         }
 
-        // Inicializar
-        updateHeaderStock();
-        filterTpvProducts();
+        // Inicializar al abrir la app cargando desde Google Sheets
+        loadInventoryFromSheet();
     </script>
 </body>
 </html>
