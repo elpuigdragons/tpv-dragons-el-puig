@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dragons El Puig · TPV Multicompra</title>
+    <title>Dragons El Puig · TPV Móvil Avanzado</title>
     <script src="https://cdn.jsdelivr.net/npm/tailwindcss-cdn@3.4.10/tailwindcss.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -24,7 +24,7 @@
             </div>
             <div>
                 <h1 class="text-base font-extrabold tracking-tight text-white flex items-center gap-2">
-                    Dragons El Puig <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">TPV Multicompra</span>
+                    Dragons El Puig <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">TPV Móvil</span>
                 </h1>
                 <p class="text-[11px] text-slate-400 font-medium" id="header-stock-counter">Cargando stock...</p>
             </div>
@@ -52,29 +52,27 @@
         
         <!-- ================= SECCIÓN TPV ================= -->
         <section id="tab-tpv" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 bg-[#111827] rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-2xl space-y-5">
+            <div class="lg:col-span-2 bg-[#111827] rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-2xl space-y-4">
                 
-                <!-- Galletas de Categorías -->
-                <div class="space-y-2">
-                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">1. Elige Categoría</label>
-                    <div id="category-chips" class="flex flex-wrap gap-2"></div>
-                </div>
-
-                <!-- Galletas de Filtro Secundario -->
-                <div class="space-y-2">
-                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">2. Filtrar por Color / Subtipo</label>
-                    <div id="subfilter-chips" class="flex flex-wrap gap-1.5">
-                        <span class="text-xs text-slate-500 italic py-1">Selecciona una categoría arriba...</span>
+                <!-- Barra superior con botón de menú de filtros -->
+                <div class="flex justify-between items-center bg-[#090d16] p-3 rounded-2xl border border-slate-800">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-filter text-cyan-400 text-sm"></i>
+                        <span class="text-xs font-bold text-slate-200 uppercase tracking-wider">Filtros Activos:</span>
+                        <span id="active-filter-label" class="text-xs text-cyan-400 font-semibold">Todas las categorías</span>
                     </div>
+                    <button onclick="toggleFilterModal(true)" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center space-x-2 transition shadow-md shadow-cyan-500/20 cursor-pointer">
+                        <i class="fa-solid fa-sliders"></i> <span>Filtrar Catálogo</span>
+                    </button>
                 </div>
 
                 <!-- Listado de productos filtrados -->
-                <div class="space-y-2 pt-2 border-t border-slate-800/80">
+                <div class="space-y-2 pt-2">
                     <div class="flex justify-between items-center">
-                        <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Artículos Disponibles (Pulsa para añadir al carrito)</h3>
+                        <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Artículos Disponibles (Pulsa para añadir)</h3>
                         <span id="filtered-count-badge" class="text-[11px] font-mono text-cyan-400 font-bold">0 uds</span>
                     </div>
-                    <div id="tpv-products-list" class="space-y-2 max-h-[380px] overflow-y-auto pr-1"></div>
+                    <div id="tpv-products-list" class="space-y-2 max-h-[420px] overflow-y-auto pr-1"></div>
                 </div>
             </div>
 
@@ -85,7 +83,6 @@
                         <i class="fa-solid fa-cart-shopping text-emerald-400"></i> <span>Carrito de Venta Actual</span>
                     </h2>
                     
-                    <!-- Contenedor de artículos añadidos al carrito -->
                     <div id="cart-items-container" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
                         <div class="p-3 bg-[#090d16] rounded-2xl border border-dashed border-slate-800 text-center text-slate-500 text-xs">
                             El carrito está vacío
@@ -210,6 +207,39 @@
         </section>
 
     </main>
+
+    <!-- MODAL / MENÚ DESPLEGABLE DE FILTROS -->
+    <div id="filter-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-[#111827] w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-slate-800 p-6 space-y-6 shadow-2xl animate-in fade-in slide-in-from-bottom duration-200">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center space-x-2">
+                    <i class="fa-solid fa-sliders text-cyan-400"></i> <span>Menú de Filtros del TPV</span>
+                </h3>
+                <button onclick="toggleFilterModal(false)" class="text-slate-400 hover:text-white p-2 cursor-pointer">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Galletas de Categorías en el Modal -->
+            <div class="space-y-2">
+                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">1. Seleccionar Categoría</label>
+                <div id="modal-category-chips" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <!-- Galletas de Color / Variante en el Modal -->
+            <div class="space-y-2">
+                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">2. Filtrar por Color / Subtipo</label>
+                <div id="modal-subfilter-chips" class="flex flex-wrap gap-1.5">
+                    <span class="text-xs text-slate-500 italic py-1">Selecciona una categoría arriba...</span>
+                </div>
+            </div>
+
+            <!-- Botón Aplicar y Cerrar -->
+            <button onclick="applyAndCloseFilters()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider py-3.5 rounded-2xl shadow-lg shadow-cyan-500/20 cursor-pointer transition">
+                Aplicar Filtros y Ver Resultados
+            </button>
+        </div>
+    </div>
 
     <script>
         const rawCatalog = [
@@ -364,7 +394,7 @@
             }
         });
 
-        let cart = []; // Array para múltiples productos
+        let cart = [];
         let selectedCategory = '';
         let selectedTag = '';
         let saleType = 'Fuera';
@@ -389,47 +419,67 @@
             if(tabId === 'sales') renderSales();
         }
 
-        // --- TPV GALLETAS ---
-        function renderTpvCategoryChips() {
+        // --- CONTROL DEL MODAL DE FILTROS ---
+        function toggleFilterModal(open) {
+            const modal = document.getElementById('filter-modal');
+            if (open) {
+                modal.classList.remove('hidden');
+                renderModalCategoryChips();
+                renderModalSubfilterChips();
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function renderModalCategoryChips() {
             const categories = [...new Set(inventory.map(p => p.category))];
-            const container = document.getElementById('category-chips');
+            const container = document.getElementById('modal-category-chips');
             
-            container.innerHTML = `<button onclick="selectTpvCategory('')" class="px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${selectedCategory === '' ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20' : 'bg-[#090d16] text-slate-300 border border-slate-800 hover:border-slate-700'}">Todas</button>` +
+            container.innerHTML = `<button onclick="selectModalCategory('')" class="px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${selectedCategory === '' ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">Todas</button>` +
                 categories.map(cat => `
-                    <button onclick="selectTpvCategory('${cat}')" class="px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${selectedCategory === cat ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20' : 'bg-[#090d16] text-slate-300 border border-slate-800 hover:border-slate-700'}">
+                    <button onclick="selectModalCategory('${cat}')" class="px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${selectedCategory === cat ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">
                         ${cat}
                     </button>
                 `).join('');
         }
 
-        function selectTpvCategory(cat) {
+        function selectModalCategory(cat) {
             selectedCategory = cat;
             selectedTag = '';
-            renderTpvCategoryChips();
-            renderTpvSubfilterChips();
-            filterTpvProducts();
+            renderModalCategoryChips();
+            renderModalSubfilterChips();
         }
 
-        function renderTpvSubfilterChips() {
-            const container = document.getElementById('subfilter-chips');
+        function renderModalSubfilterChips() {
+            const container = document.getElementById('modal-subfilter-chips');
             if (!selectedCategory) {
-                container.innerHTML = `<span class="text-xs text-slate-500 italic py-1">Selecciona una categoría arriba para ver filtros...</span>`;
+                container.innerHTML = `<span class="text-xs text-slate-500 italic py-1">Selecciona una categoría arriba...</span>`;
                 return;
             }
             const items = inventory.filter(p => p.category === selectedCategory && p.available);
             const tags = [...new Set(items.map(p => p.tag))];
 
-            container.innerHTML = `<button onclick="selectTpvTag('')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${selectedTag === '' ? 'bg-blue-600 text-white' : 'bg-[#090d16] text-slate-400 border border-slate-800'}">Todos</button>` +
+            container.innerHTML = `<button onclick="selectModalTag('')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${selectedTag === '' ? 'bg-blue-600 text-white' : 'bg-[#090d16] text-slate-400 border border-slate-800'}">Todos</button>` +
                 tags.map(t => `
-                    <button onclick="selectTpvTag('${t}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${selectedTag === t ? 'bg-blue-600 text-white shadow' : 'bg-[#090d16] text-slate-400 border border-slate-800'}">
+                    <button onclick="selectModalTag('${t}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${selectedTag === t ? 'bg-blue-600 text-white shadow' : 'bg-[#090d16] text-slate-400 border border-slate-800'}">
                         ${t}
                     </button>
                 `).join('');
         }
 
-        function selectTpvTag(tag) {
+        function selectModalTag(tag) {
             selectedTag = tag;
-            renderTpvSubfilterChips();
+            renderModalSubfilterChips();
+        }
+
+        function applyAndCloseFilters() {
+            toggleFilterModal(false);
+            
+            // Actualizar etiqueta resumen en pantalla principal
+            let label = selectedCategory || 'Todas las categorías';
+            if (selectedTag) label += ` (${selectedTag})`;
+            document.getElementById('active-filter-label').textContent = label;
+
             filterTpvProducts();
         }
 
@@ -453,7 +503,7 @@
             });
 
             list.innerHTML = Object.values(grouped).map(({ sample, count }) => `
-                <div onclick="addToCart('${sample.desc}')" class="p-3.5 bg-[#090d16] border border-slate-800 rounded-2xl hover:border-cyan-500/80 transition flex justify-between items-center cursor-pointer group">
+                <div onclick='addToCart(${JSON.stringify(sample.desc)})' class="p-3.5 bg-[#090d16] border border-slate-800 rounded-2xl hover:border-cyan-500/80 transition flex justify-between items-center cursor-pointer group">
                     <div class="pr-2">
                         <div class="flex items-center gap-2">
                             <span class="text-[10px] text-cyan-400 font-mono font-extrabold">${sample.category}</span>
@@ -471,7 +521,6 @@
 
         // --- GESTIÓN DEL CARRITO MULTICOMPRA ---
         function addToCart(desc) {
-            // Buscar la siguiente unidad disponible con esta descripción
             const product = inventory.find(p => p.desc === desc && p.available && !cart.some(c => c.id === p.id));
             if (!product) {
                 alert('No hay más unidades disponibles de este artículo en stock.');
@@ -563,7 +612,6 @@
             cart = [];
             renderCart();
             updateHeaderStock();
-            renderTpvSubfilterChips();
             filterTpvProducts();
         }
 
@@ -582,7 +630,6 @@
             }
         }
 
-        // --- INVENTARIO ---
         function renderInvChips() {
             const categories = [...new Set(inventory.map(p => p.category))];
             document.getElementById('inv-category-chips').innerHTML = 
@@ -625,7 +672,6 @@
             `).join('');
         }
 
-        // --- VENTAS ---
         function renderSales() {
             const dateFrom = document.getElementById('sales-date-from').value;
             const dateTo = document.getElementById('sales-date-to').value;
@@ -661,7 +707,6 @@
 
         // Inicializar
         updateHeaderStock();
-        renderTpvCategoryChips();
         filterTpvProducts();
     </script>
 </body>
