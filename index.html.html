@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragons El Puig · TPV Multicompra</title>
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss-cdn@3.4.10/tailwindcss.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 99px; }
+    </style>
+</head>
+<body class="bg-[#090d16] text-slate-100 min-h-screen flex flex-col selection:bg-cyan-500 selection:text-slate-950">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 backdrop-blur-xl bg-[#090d16]/85 border-b border-slate-800/80 px-5 py-3.5 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <div class="bg-gradient-to-tr from-cyan-500 to-blue-600 text-slate-950 p-2.5 rounded-2xl font-black shadow-lg shadow-cyan-500/20 flex items-center justify-center">
+                <i class="fa-solid fa-hockey-puck text-lg"></i>
+            </div>
+            <div>
+                <h1 class="text-base font-extrabold tracking-tight text-white flex items-center gap-2">
+                    Dragons El Puig <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">TPV Multicompra</span>
+                </h1>
+                <p class="text-[11px] text-slate-400 font-medium" id="header-stock-counter">Cargando stock...</p>
+            </div>
+        </div>
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <span class="w-1.5 h-1.5 mr-1.5 bg-emerald-500 rounded-full animate-ping"></span> Online
+        </span>
+    </header>
+
+    <!-- Navegación -->
+    <nav class="bg-[#0e1626]/70 border-b border-slate-800/60 px-4 flex space-x-2 backdrop-blur-md overflow-x-auto">
+        <button onclick="switchTab('tpv')" id="btn-tpv" class="py-3 px-4 font-bold text-xs uppercase tracking-wider border-b-2 border-cyan-400 text-cyan-400 flex items-center space-x-2 cursor-pointer transition whitespace-nowrap">
+            <i class="fa-solid fa-cash-register"></i> <span>Caja / TPV</span>
+        </button>
+        <button onclick="switchTab('inventory')" id="btn-inventory" class="py-3 px-4 font-bold text-xs uppercase tracking-wider border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2 cursor-pointer transition whitespace-nowrap">
+            <i class="fa-solid fa-boxes-stacked"></i> <span>Inventario (285)</span>
+        </button>
+        <button onclick="switchTab('sales')" id="btn-sales" class="py-3 px-4 font-bold text-xs uppercase tracking-wider border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2 cursor-pointer transition whitespace-nowrap">
+            <i class="fa-solid fa-chart-line"></i> <span>Ventas</span>
+        </button>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <main class="flex-grow p-4 sm:p-6 max-w-7xl mx-auto w-full space-y-6">
+        
+        <!-- ================= SECCIÓN TPV ================= -->
+        <section id="tab-tpv" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-[#111827] rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-2xl space-y-5">
+                
+                <!-- Galletas de Categorías -->
+                <div class="space-y-2">
+                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">1. Elige Categoría</label>
+                    <div id="category-chips" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <!-- Galletas de Filtro Secundario -->
+                <div class="space-y-2">
+                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">2. Filtrar por Color / Subtipo</label>
+                    <div id="subfilter-chips" class="flex flex-wrap gap-1.5">
+                        <span class="text-xs text-slate-500 italic py-1">Selecciona una categoría arriba...</span>
+                    </div>
+                </div>
+
+                <!-- Listado de productos filtrados -->
+                <div class="space-y-2 pt-2 border-t border-slate-800/80">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Artículos Disponibles (Pulsa para añadir al carrito)</h3>
+                        <span id="filtered-count-badge" class="text-[11px] font-mono text-cyan-400 font-bold">0 uds</span>
+                    </div>
+                    <div id="tpv-products-list" class="space-y-2 max-h-[380px] overflow-y-auto pr-1"></div>
+                </div>
+            </div>
+
+            <!-- Carrito / Resumen de Venta Multicompra -->
+            <div class="bg-[#111827] rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-2xl flex flex-col justify-between space-y-6 h-fit sticky top-20">
+                <div class="space-y-4">
+                    <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center space-x-2">
+                        <i class="fa-solid fa-cart-shopping text-emerald-400"></i> <span>Carrito de Venta Actual</span>
+                    </h2>
+                    
+                    <!-- Contenedor de artículos añadidos al carrito -->
+                    <div id="cart-items-container" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                        <div class="p-3 bg-[#090d16] rounded-2xl border border-dashed border-slate-800 text-center text-slate-500 text-xs">
+                            El carrito está vacío
+                        </div>
+                    </div>
+
+                    <!-- Galletas Tipo de Venta -->
+                    <div class="space-y-1.5 pt-2 border-t border-slate-800">
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tipo de Venta (Aplica a todo)</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" onclick="setSaleType('Fuera')" id="btn-sale-fuera" class="py-2 px-2 rounded-xl text-xs font-bold bg-cyan-500 text-slate-950 transition cursor-pointer">
+                                Fuera (General)
+                            </button>
+                            <button type="button" onclick="setSaleType('Club')" id="btn-sale-club" class="py-2 px-2 rounded-xl text-xs font-bold bg-[#090d16] text-slate-400 border border-slate-800 transition cursor-pointer">
+                                Club (-15% Dto)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Vendedor</label>
+                        <input type="text" id="seller-user" value="ramontar@gmail.com" class="w-full bg-[#090d16] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-800/80 space-y-1.5 text-sm">
+                        <div class="flex justify-between text-slate-400 text-xs">
+                            <span>Subtotal Base:</span>
+                            <span id="summary-base" class="text-white font-mono font-semibold">0.00 €</span>
+                        </div>
+                        <div class="flex justify-between text-slate-400 text-xs">
+                            <span>Descuento Club:</span>
+                            <span id="summary-discount" class="text-emerald-400 font-mono font-semibold">-0.00 €</span>
+                        </div>
+                        <div class="flex justify-between text-base font-extrabold text-white pt-2 border-t border-slate-800">
+                            <span>Total Carrito:</span>
+                            <span id="summary-total" class="text-cyan-400 font-mono">0.00 €</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="completeSale()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider py-3.5 rounded-2xl shadow-lg shadow-emerald-500/20 cursor-pointer transition transform active:scale-[0.98]">
+                    <i class="fa-solid fa-check-circle mr-1.5"></i> Cobrar y Registrar Todo
+                </button>
+            </div>
+        </section>
+
+        <!-- ================= SECCIÓN INVENTARIO ================= -->
+        <section id="tab-inventory" class="hidden bg-[#111827] rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-2xl space-y-5">
+            <div class="space-y-3 border-b border-slate-800 pb-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center space-x-2">
+                        <i class="fa-solid fa-warehouse text-cyan-400"></i> <span>Control de Inventario Unitario</span>
+                    </h2>
+                    <span id="inv-showing-count" class="text-xs font-mono text-slate-400"></span>
+                </div>
+                <div id="inv-category-chips" class="flex flex-wrap gap-1.5"></div>
+                <div id="inv-subfilter-chips" class="flex flex-wrap gap-1.5"></div>
+            </div>
+
+            <div class="overflow-x-auto max-h-[550px]">
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-[#090d16] text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800 sticky top-0">
+                        <tr>
+                            <th class="p-3">ID</th>
+                            <th class="p-3">Descripción</th>
+                            <th class="p-3">Categoría</th>
+                            <th class="p-3">Precio</th>
+                            <th class="p-3">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-table-body" class="divide-y divide-slate-800/60 text-xs"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================= SECCIÓN HISTORIAL DE VENTAS ================= -->
+        <section id="tab-sales" class="hidden bg-[#111827] rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-2xl space-y-5">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-slate-800 pb-4">
+                <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center space-x-2">
+                    <i class="fa-solid fa-chart-line text-emerald-400"></i> <span>Historial de Ventas y Anulaciones</span>
+                </h2>
+                
+                <div class="grid grid-cols-2 gap-2.5 w-full lg:w-auto">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Desde</label>
+                        <input type="date" id="sales-date-from" onchange="renderSales()" class="bg-[#090d16] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white w-full">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Hasta</label>
+                        <input type="date" id="sales-date-to" onchange="renderSales()" class="bg-[#090d16] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white w-full">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 bg-[#090d16] p-4 rounded-2xl border border-slate-800">
+                <div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase">Unidades Vendidas</span>
+                    <h3 id="sales-count" class="text-2xl font-extrabold text-white mt-0.5">0</h3>
+                </div>
+                <div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase">Caja Total</span>
+                    <h3 id="sales-total-amount" class="text-2xl font-extrabold text-cyan-400 font-mono mt-0.5">0.00 €</h3>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-[#090d16] text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800">
+                        <tr>
+                            <th class="p-3">ID</th>
+                            <th class="p-3">Artículo</th>
+                            <th class="p-3">Fecha</th>
+                            <th class="p-3">Tipo</th>
+                            <th class="p-3">Vendedor</th>
+                            <th class="p-3">Total</th>
+                            <th class="p-3 text-center">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sales-table-body" class="divide-y divide-slate-800/60 text-xs"></tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const rawCatalog = [
+            ["VM-PGH Glass Fiber Sticks Youth VERDE LEFT", "Palos", 45, 3],
+            ["VM-PGH Glass Fiber Sticks Youth VERDE RIGHT", "Palos", 45, 1],
+            ["VM-PGH Glass Fiber Sticks Youth ROSA LEFT", "Palos", 45, 1],
+            ["VM-PGH Glass Fiber Sticks Youth ROSA RIGHT", "Palos", 45, 1],
+            ["VM-PGH Glass Fiber Sticks Youth SILVER RIGHT", "Palos", 45, 1],
+            ["VM-PGS Glass Fiber Sticks Junior AMARILLO LEFT", "Palos", 55, 2],
+            ["VM-PGS Glass Fiber Sticks Junior AMARILLO RIGHT", "Palos", 55, 1],
+            ["VM-PGS Glass Fiber Sticks Junior AZUL LEFT", "Palos", 55, 2],
+            ["VM-PGS Glass Fiber Sticks Junior AZUL RIGHT", "Palos", 55, 1],
+            ["VM-PHYT Full Carbon Stick Youth AMARILLO LEFT", "Palos", 75, 2],
+            ["VM-PHJR Full Carbon Stick INT AZUL LEFT", "Palos", 95, 1],
+            ["VM-PHJR Full Carbon Stick INT AZUL RIGHT", "Palos", 95, 1],
+            ["VM-PHSR7 Full Carbon Stick Senior VERDE LEFT", "Palos", 125, 1],
+            ["VM-PHSR7 Full Carbon Stick Senior VERDE RIGHT", "Palos", 125, 1],
+            ["VM-COACH Full Carbon Stick Senior LEFT", "Palos", 110, 1],
+            ["TACKLA XD350 FLEX INT Flex 55 LEFT", "Palos", 89, 1],
+            ["TACKLA XD350 FLEX INT Flex 55 RIGHT", "Palos", 89, 1],
+            ["VM-GCS Carbon Golie Stick 21\"", "Portero", 95, 1],
+            ["VM-GCS Carbon Golie Stick 22\"", "Portero", 99, 1],
+            ["TACKLA Composite Goalie Stick 22\"", "Portero", 115, 1],
+            ["VM-PJR Tirantes portero", "Portero", 22, 2],
+            ["Patines Hockey Linea Victory X3 PRO JR #33", "Patines", 118, 1],
+            ["Patines Hockey Linea Victory X3 PRO SR #42", "Patines", 135, 1],
+            ["Patines Hockey Linea Victory X8 ProLeague #38", "Patines", 210, 1],
+            ["Patines Hockey Linea Graff MAXX19 #41", "Patines", 185, 1],
+            ["VM-KPTN Trolley Vertical 46x36 cuatro ruedas AZUL", "Bolsas y Transporte", 79, 1],
+            ["VM-KPTN Trolley Vertical 46x36 cuatro ruedas NARANJA", "Bolsas y Transporte", 79, 1],
+            ["VM-GEQB Trolley portero 96x55x54 NEGRO", "Bolsas y Transporte", 129, 1],
+            ["Bolsa Stick", "Bolsas y Transporte", 28, 2],
+            ["Espinilleras VM-PJR 9\"", "Protecciones", 38, 1],
+            ["Espinilleras VM-PJR 10\"", "Protecciones", 38, 1],
+            ["Espinilleras VM-PJR 11\"", "Protecciones", 38, 1],
+            ["Espinilleras VM-PSR 11\"", "Protecciones", 45, 1],
+            ["Espinilleras VM-PSR 13\"", "Protecciones", 45, 1],
+            ["Espinilleras VM-PSR 14\"", "Protecciones", 45, 1],
+            ["VM IHP-2 Girdle YT-M", "Protecciones", 42, 1],
+            ["VM IHP-2 Girdle JR-S", "Protecciones", 46, 1],
+            ["VM IHP-2 Girdle JR-M", "Protecciones", 46, 1],
+            ["VM IHP-2 Girdle SR-L", "Protecciones", 54, 1],
+            ["Girdle TACKLA RSP JR-S", "Protecciones", 49, 1],
+            ["Girdle TACKLA IHP-1 JR-M", "Protecciones", 49, 1],
+            ["Girdle TACKLA IHP SR-S", "Protecciones", 55, 1],
+            ["VM-PJR Guantes 9\"", "Protecciones", 44, 1],
+            ["VM-PJR Guantes 10\"", "Protecciones", 44, 1],
+            ["VM-PJR Guantes 11\"", "Protecciones", 44, 1],
+            ["VM-PSR Guantes 12\"", "Protecciones", 52, 1],
+            ["TACKLA TK-1000X Guantes 8\"", "Protecciones", 48, 1],
+            ["TACKLA TK-1000X Guantes 13\"", "Protecciones", 58, 1],
+            ["TACKLA TK-1000X Guantes 14\"", "Protecciones", 58, 1],
+            ["TACKLA TK-851 Coderas JR-S", "Protecciones", 32, 1],
+            ["VM-PJR coderas YT-M", "Protecciones", 28, 1],
+            ["VM-PJR coderas JR-S", "Protecciones", 28, 1],
+            ["VM-PJR coderas JR-M", "Protecciones", 28, 1],
+            ["VM-SR-EP coderas JR-M", "Protecciones", 34, 1],
+            ["VM-SR-EP coderas JR-L", "Protecciones", 34, 1],
+            ["VM-SR-EP coderas SR-S", "Protecciones", 36, 1],
+            ["VM-SR-EP coderas SR-M", "Protecciones", 36, 1],
+            ["VM-SR-EP coderas SR-L", "Protecciones", 36, 1],
+            ["PHV Casco NEGRO Talla M", "Protecciones", 65, 2],
+            ["PHV Casco NEGRO Talla L", "Protecciones", 65, 1],
+            ["PHV Casco BLANCO Talla S", "Protecciones", 65, 1],
+            ["PHV Casco BLANCO Talla M", "Protecciones", 65, 1],
+            ["PHV Casco BLANCO Talla L", "Protecciones", 65, 1],
+            ["VM-NG Protector cuello", "Protecciones", 19, 2],
+            ["Pack bolas desodorantes negras (2uds)", "Accesorios", 8, 12],
+            ["Cinta Stick algodón BLANCO", "Accesorios", 4.5, 10],
+            ["Cinta Stick algodón NEGRO", "Accesorios", 4.5, 10],
+            ["Puck hockey linea HD Negro/Blanco", "Accesorios", 9, 20],
+            ["Ruedas VM-DBW GOALIE VERDE 59mm", "Accesorios", 9.5, 24],
+            ["Ruedas VM-DBW VERDE 64mm", "Accesorios", 9.5, 8],
+            ["Ruedas VM-DBW ProLeague VERDE 68mm", "Accesorios", 11, 8],
+            ["Ruedas VM-DBW ProLeague VERDE 72mm", "Accesorios", 11, 8],
+            ["Ruedas VM-DBW ProLeague VERDE 76mm", "Accesorios", 11, 8],
+            ["Ruedas VM-DBW ProLeague VERDE 80mm", "Accesorios", 11, 8],
+            ["Ruedas VM-DBW ProLeague BLANCO 68mm", "Accesorios", 11, 8],
+            ["Ruedas VM-DBW ProLeague BLANCO 72mm", "Accesorios", 11, 8],
+            ["Ruedas VM-DBW ProLeague BLANCO 76mm", "Accesorios", 11, 8],
+            ["Ruedas VM-DBW ProLeague BLANCO 80mm", "Accesorios", 11, 8],
+            ["Ruedas OPTIMUS ROJA 72mm", "Accesorios", 10, 8],
+            ["Ruedas OPTIMUS ROJA 76mm", "Accesorios", 10, 8],
+            ["Ruedas OPTIMUS ROJA 80mm", "Accesorios", 10, 8],
+            ["GRAFF 78A Hybrid 68mm", "Accesorios", 8.5, 8],
+            ["GRAFF 78A Hybrid 72mm", "Accesorios", 8.5, 8],
+            ["GRAFF 78A Hybrid 76mm", "Accesorios", 8.5, 8],
+            ["GRAFF 78A Hybrid 80mm - 64mm", "Accesorios", 8.5, 8],
+            ["Protector pala silicona BLANCO", "Accesorios", 12, 10],
+            ["Rodamientos VikMax Chromo (pack 16uds)", "Accesorios", 24, 4],
+            ["Cordones Patines Hockey Waxed 183cm 6 colores", "Accesorios", 6, 6],
+            ["Cordones Patines Hockey Waxed 214cm 6 colores", "Accesorios", 6, 6],
+            ["Cordones Patines Hockey Waxed 244cm 6 colores", "Accesorios", 6, 5],
+            ["Cordones Patines Hockey Waxed 174cm 6 colores", "Accesorios", 6, 6],
+            ["Cordones Patines Hockey Waxed 305cm 6 colores", "Accesorios", 6.5, 2],
+            ["Cordones Patines Hockey Waxed 330cm 6 colores", "Accesorios", 6.5, 4],
+            ["Cordones Patines Hockey No Waxed 183cm 6 colores", "Accesorios", 5, 5],
+            ["Cordones Patines Hockey No Waxed 214cm 6 colores", "Accesorios", 5, 5],
+            ["Cordones Patines Hockey No Waxed 244cm 6 colores", "Accesorios", 5, 3],
+            ["Cordones Patines Hockey No Waxed 174cm 6 colores", "Accesorios", 5, 3],
+            ["Cordones Patines Hockey No Waxed 305cm 6 colores", "Accesorios", 5.5, 5],
+            ["Cordones Patines Hockey No Waxed 330cm 5 colores", "Accesorios", 5.5, 5]
+        ];
+
+        function extractTag(desc, cat) {
+            const d = desc.toUpperCase();
+            if (d.includes('VERDE')) return 'Verde';
+            if (d.includes('ROSA')) return 'Rosa';
+            if (d.includes('SILVER')) return 'Silver';
+            if (d.includes('AMARILLO')) return 'Amarillo';
+            if (d.includes('AZUL')) return 'Azul';
+            if (d.includes('NARANJA')) return 'Naranja';
+            if (d.includes('BLANCO')) return 'Blanco';
+            if (d.includes('NEGRO')) return 'Negro';
+            if (d.includes('ROJA')) return 'Rojo';
+            if (cat === 'Protecciones') {
+                if (d.includes('ESPINILLERAS')) return 'Espinilleras';
+                if (d.includes('GIRDLE')) return 'Girdle';
+                if (d.includes('GUANTES')) return 'Guantes';
+                if (d.includes('CODERAS')) return 'Coderas';
+                if (d.includes('CASCO')) return 'Casco';
+                return 'Otros';
+            }
+            if (cat === 'Accesorios') {
+                if (d.includes('RUEDAS') || d.includes('GRAFF')) return 'Ruedas';
+                if (d.includes('CORDONES')) return 'Cordones';
+                if (d.includes('CINTA')) return 'Cinta';
+                if (d.includes('PUCK')) return 'Pucks';
+                return 'Otros';
+            }
+            return 'Estándar';
+        }
+
+        let inventory = [];
+        let counter = 1;
+        rawCatalog.forEach(([desc, category, price, qty]) => {
+            for (let i = 0; i < qty; i++) {
+                inventory.push({
+                    id: 'HOCK-' + String(counter).padStart(3, '0'),
+                    desc,
+                    category,
+                    price,
+                    discount: 15,
+                    tag: extractTag(desc, category),
+                    available: true,
+                    saleDate: '',
+                    saleType: '',
+                    seller: '',
+                    finalPrice: 0
+                });
+                counter++;
+            }
+        });
+
+        let cart = []; // Array para múltiples productos
+        let selectedCategory = '';
+        let selectedTag = '';
+        let saleType = 'Fuera';
+        let invCategory = '';
+        let invTag = '';
+
+        function updateHeaderStock() {
+            const avail = inventory.filter(p => p.available).length;
+            document.getElementById('header-stock-counter').textContent = `${avail} uds disponibles de ${inventory.length}`;
+        }
+
+        function switchTab(tabId) {
+            ['tpv', 'inventory', 'sales'].forEach(id => {
+                document.getElementById('tab-' + id).classList.add('hidden');
+                document.getElementById('btn-' + id).classList.remove('border-cyan-400', 'text-cyan-400');
+                document.getElementById('btn-' + id).classList.add('border-transparent', 'text-slate-400');
+            });
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            document.getElementById('btn-' + tabId).classList.add('border-cyan-400', 'text-cyan-400');
+            
+            if(tabId === 'inventory') renderInvChips();
+            if(tabId === 'sales') renderSales();
+        }
+
+        // --- TPV GALLETAS ---
+        function renderTpvCategoryChips() {
+            const categories = [...new Set(inventory.map(p => p.category))];
+            const container = document.getElementById('category-chips');
+            
+            container.innerHTML = `<button onclick="selectTpvCategory('')" class="px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${selectedCategory === '' ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20' : 'bg-[#090d16] text-slate-300 border border-slate-800 hover:border-slate-700'}">Todas</button>` +
+                categories.map(cat => `
+                    <button onclick="selectTpvCategory('${cat}')" class="px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${selectedCategory === cat ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20' : 'bg-[#090d16] text-slate-300 border border-slate-800 hover:border-slate-700'}">
+                        ${cat}
+                    </button>
+                `).join('');
+        }
+
+        function selectTpvCategory(cat) {
+            selectedCategory = cat;
+            selectedTag = '';
+            renderTpvCategoryChips();
+            renderTpvSubfilterChips();
+            filterTpvProducts();
+        }
+
+        function renderTpvSubfilterChips() {
+            const container = document.getElementById('subfilter-chips');
+            if (!selectedCategory) {
+                container.innerHTML = `<span class="text-xs text-slate-500 italic py-1">Selecciona una categoría arriba para ver filtros...</span>`;
+                return;
+            }
+            const items = inventory.filter(p => p.category === selectedCategory && p.available);
+            const tags = [...new Set(items.map(p => p.tag))];
+
+            container.innerHTML = `<button onclick="selectTpvTag('')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${selectedTag === '' ? 'bg-blue-600 text-white' : 'bg-[#090d16] text-slate-400 border border-slate-800'}">Todos</button>` +
+                tags.map(t => `
+                    <button onclick="selectTpvTag('${t}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${selectedTag === t ? 'bg-blue-600 text-white shadow' : 'bg-[#090d16] text-slate-400 border border-slate-800'}">
+                        ${t}
+                    </button>
+                `).join('');
+        }
+
+        function selectTpvTag(tag) {
+            selectedTag = tag;
+            renderTpvSubfilterChips();
+            filterTpvProducts();
+        }
+
+        function filterTpvProducts() {
+            let filtered = inventory.filter(p => p.available);
+            if (selectedCategory) filtered = filtered.filter(p => p.category === selectedCategory);
+            if (selectedTag) filtered = filtered.filter(p => p.tag === selectedTag);
+
+            document.getElementById('filtered-count-badge').textContent = `${filtered.length} uds`;
+            const list = document.getElementById('tpv-products-list');
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No quedan unidades disponibles con este filtro.</p>`;
+                return;
+            }
+
+            const grouped = {};
+            filtered.forEach(p => {
+                if (!grouped[p.desc]) grouped[p.desc] = { sample: p, count: 0 };
+                grouped[p.desc].count++;
+            });
+
+            list.innerHTML = Object.values(grouped).map(({ sample, count }) => `
+                <div onclick="addToCart('${sample.desc}')" class="p-3.5 bg-[#090d16] border border-slate-800 rounded-2xl hover:border-cyan-500/80 transition flex justify-between items-center cursor-pointer group">
+                    <div class="pr-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] text-cyan-400 font-mono font-extrabold">${sample.category}</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-semibold">${count} disp.</span>
+                        </div>
+                        <h4 class="text-xs font-bold text-white group-hover:text-cyan-300 transition mt-1">${sample.desc}</h4>
+                        <span class="text-[11px] text-slate-400"><span class="font-mono text-slate-200">${sample.price.toFixed(2)} €</span></span>
+                    </div>
+                    <span class="bg-cyan-500/10 text-cyan-400 px-3 py-2 rounded-xl text-xs font-bold border border-cyan-500/20 group-hover:bg-cyan-500 group-hover:text-slate-950 transition shrink-0">
+                        <i class="fa-solid fa-plus mr-1"></i> Añadir
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        // --- GESTIÓN DEL CARRITO MULTICOMPRA ---
+        function addToCart(desc) {
+            // Buscar la siguiente unidad disponible con esta descripción
+            const product = inventory.find(p => p.desc === desc && p.available && !cart.some(c => c.id === p.id));
+            if (!product) {
+                alert('No hay más unidades disponibles de este artículo en stock.');
+                return;
+            }
+            cart.push(product);
+            renderCart();
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(p => p.id !== id);
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items-container');
+            if (cart.length === 0) {
+                container.innerHTML = `<div class="p-3 bg-[#090d16] rounded-2xl border border-dashed border-slate-800 text-center text-slate-500 text-xs">El carrito está vacío</div>`;
+                updateCartTotals();
+                return;
+            }
+
+            container.innerHTML = cart.map(item => {
+                const isClub = saleType === 'Club';
+                const disc = isClub ? (item.price * item.discount / 100) : 0;
+                const finalP = item.price - disc;
+                return `
+                    <div class="p-2.5 bg-[#090d16] rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                        <div class="pr-2">
+                            <span class="text-[10px] text-cyan-400 font-mono font-bold">${item.id}</span>
+                            <p class="font-bold text-white line-clamp-1">${item.desc}</p>
+                            <span class="text-[11px] text-emerald-400 font-mono">${finalP.toFixed(2)} €</span>
+                        </div>
+                        <button onclick="removeFromCart('${item.id}')" class="text-rose-400 hover:text-rose-300 p-1.5 cursor-pointer">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            updateCartTotals();
+        }
+
+        function setSaleType(type) {
+            saleType = type;
+            const btnFuera = document.getElementById('btn-sale-fuera');
+            const btnClub = document.getElementById('btn-sale-club');
+            if (type === 'Fuera') {
+                btnFuera.className = "py-2 px-2 rounded-xl text-xs font-bold bg-cyan-500 text-slate-950 transition cursor-pointer";
+                btnClub.className = "py-2 px-2 rounded-xl text-xs font-bold bg-[#090d16] text-slate-400 border border-slate-800 transition cursor-pointer";
+            } else {
+                btnClub.className = "py-2 px-2 rounded-xl text-xs font-bold bg-cyan-500 text-slate-950 transition cursor-pointer";
+                btnFuera.className = "py-2 px-2 rounded-xl text-xs font-bold bg-[#090d16] text-slate-400 border border-slate-800 transition cursor-pointer";
+            }
+            renderCart();
+        }
+
+        function updateCartTotals() {
+            const isClub = saleType === 'Club';
+            let baseSum = 0;
+            let discSum = 0;
+
+            cart.forEach(item => {
+                baseSum += item.price;
+                discSum += isClub ? (item.price * item.discount / 100) : 0;
+            });
+
+            const totalSum = baseSum - discSum;
+            document.getElementById('summary-base').textContent = baseSum.toFixed(2) + ' €';
+            document.getElementById('summary-discount').textContent = '-' + discSum.toFixed(2) + ' €';
+            document.getElementById('summary-total').textContent = totalSum.toFixed(2) + ' €';
+        }
+
+        function completeSale() {
+            if (cart.length === 0) return alert('El carrito está vacío. Añade algún producto.');
+            const seller = document.getElementById('seller-user').value;
+            const today = new Date().toISOString().split('T')[0];
+            const isClub = saleType === 'Club';
+
+            cart.forEach(item => {
+                item.available = false;
+                item.saleDate = today;
+                item.saleType = saleType;
+                item.seller = seller;
+                item.finalPrice = item.price - (isClub ? (item.price * item.discount / 100) : 0);
+            });
+
+            alert(`¡Venta de ${cart.length} artículos registrada con éxito!`);
+            cart = [];
+            renderCart();
+            updateHeaderStock();
+            renderTpvSubfilterChips();
+            filterTpvProducts();
+        }
+
+        function undoSale(id) {
+            const item = inventory.find(p => p.id === id);
+            if (!item) return;
+            if (confirm(`¿Anular venta de ${item.id} (${item.desc}) y devolverlo a stock?`)) {
+                item.available = true;
+                item.saleDate = '';
+                item.saleType = '';
+                item.seller = '';
+                item.finalPrice = 0;
+                updateHeaderStock();
+                renderSales();
+                filterTpvProducts();
+            }
+        }
+
+        // --- INVENTARIO ---
+        function renderInvChips() {
+            const categories = [...new Set(inventory.map(p => p.category))];
+            document.getElementById('inv-category-chips').innerHTML = 
+                `<button onclick="selectInvCat('')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${invCategory === '' ? 'bg-cyan-500 text-slate-950' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">Todas</button>` +
+                categories.map(cat => `<button onclick="selectInvCat('${cat}')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${invCategory === cat ? 'bg-cyan-500 text-slate-950' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">${cat}</button>`).join('');
+            
+            const subContainer = document.getElementById('inv-subfilter-chips');
+            if (!invCategory) {
+                subContainer.innerHTML = '';
+            } else {
+                const tags = [...new Set(inventory.filter(p => p.category === invCategory).map(p => p.tag))];
+                subContainer.innerHTML = 
+                    `<button onclick="selectInvTag('')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition cursor-pointer ${invTag === '' ? 'bg-blue-600 text-white' : 'bg-[#090d16] text-slate-400 border border-slate-800'}">Todos</button>` +
+                    tags.map(t => `<button onclick="selectInvTag('${t}')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition cursor-pointer ${invTag === t ? 'bg-blue-600 text-white' : 'bg-[#090d16] text-slate-400 border border-slate-800'}">${t}</button>`).join('');
+            }
+            renderInventory();
+        }
+
+        function selectInvCat(cat) { invCategory = cat; invTag = ''; renderInvChips(); }
+        function selectInvTag(tag) { invTag = tag; renderInvChips(); }
+
+        function renderInventory() {
+            let list = inventory;
+            if (invCategory) list = list.filter(p => p.category === invCategory);
+            if (invTag) list = list.filter(p => p.tag === invTag);
+
+            document.getElementById('inv-showing-count').textContent = `Mostrando ${list.length} uds`;
+            document.getElementById('inventory-table-body').innerHTML = list.map(p => `
+                <tr class="hover:bg-slate-800/40 transition">
+                    <td class="p-3 font-mono text-cyan-400 font-semibold">${p.id}</td>
+                    <td class="p-3 text-white font-medium">${p.desc}</td>
+                    <td class="p-3 text-slate-400">${p.category}</td>
+                    <td class="p-3 font-mono">${p.price.toFixed(2)} €</td>
+                    <td class="p-3">
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${p.available ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">
+                            ${p.available ? 'Disponible' : 'Vendido'}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // --- VENTAS ---
+        function renderSales() {
+            const dateFrom = document.getElementById('sales-date-from').value;
+            const dateTo = document.getElementById('sales-date-to').value;
+            let sales = inventory.filter(p => !p.available && p.saleDate);
+            if (dateFrom) sales = sales.filter(p => p.saleDate >= dateFrom);
+            if (dateTo) sales = sales.filter(p => p.saleDate <= dateTo);
+
+            const totalAmount = sales.reduce((sum, p) => sum + p.finalPrice, 0);
+            document.getElementById('sales-count').textContent = sales.length;
+            document.getElementById('sales-total-amount').textContent = totalAmount.toFixed(2) + ' €';
+
+            const tbody = document.getElementById('sales-table-body');
+            if (sales.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500 text-xs">No hay ventas registradas en este filtro.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = sales.map(p => `
+                <tr class="hover:bg-slate-800/40 transition">
+                    <td class="p-3 font-mono text-cyan-400 font-semibold">${p.id}</td>
+                    <td class="p-3 text-white font-medium">${p.desc}</td>
+                    <td class="p-3 font-mono text-slate-400">${p.saleDate}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#090d16] border border-slate-800 text-cyan-300">${p.saleType}</span></td>
+                    <td class="p-3 text-slate-400">${p.seller}</td>
+                    <td class="p-3 font-mono font-bold text-emerald-400">${p.finalPrice.toFixed(2)} €</td>
+                    <td class="p-3 text-center">
+                        <button onclick="undoSale('${p.id}')" class="bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-slate-950 border border-rose-500/20 px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer">
+                            <i class="fa-solid fa-rotate-left"></i> Deshacer
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Inicializar
+        updateHeaderStock();
+        renderTpvCategoryChips();
+        filterTpvProducts();
+    </script>
+</body>
+</html>
