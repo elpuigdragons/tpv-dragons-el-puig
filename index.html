@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dragons El Puig · TPV Móvil Optimizado</title>
+    <title>Dragons El Puig · TPV Oficial Google</title>
     <script src="https://cdn.jsdelivr.net/npm/tailwindcss-cdn@3.4.10/tailwindcss.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- SDK oficial de Google Identity Services para Login -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -24,17 +26,14 @@
             </div>
             <div>
                 <h1 class="text-sm font-extrabold tracking-tight text-white flex items-center gap-1.5">
-                    Dragons El Puig <span class="text-[9px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">TPV Móvil</span>
+                    Dragons El Puig <span class="text-[9px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">TPV Google</span>
                 </h1>
-                <p class="text-[10px] text-slate-400 font-medium" id="header-stock-counter">Inicia sesión para ver stock...</p>
+                <p class="text-[10px] text-slate-400 font-medium" id="header-stock-counter">Inicia sesión con Google...</p>
             </div>
         </div>
         <div class="flex items-center space-x-2">
-            <button onclick="loadInventoryFromSheet()" title="Sincronizar" class="bg-slate-800/80 hover:bg-slate-700 text-cyan-400 p-2 rounded-xl text-xs transition cursor-pointer">
-                <i class="fa-solid fa-sync" id="sync-icon"></i>
-            </button>
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                <span class="w-1.5 h-1.5 mr-1 bg-emerald-500 rounded-full animate-ping"></span> Seguro
+            <span id="auth-status-badge" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                <span class="w-1.5 h-1.5 mr-1 bg-amber-500 rounded-full animate-pulse"></span> Sin sesión
             </span>
         </div>
     </header>
@@ -58,21 +57,26 @@
         <!-- ================= SECCIÓN TPV ================= -->
         <section id="tab-tpv" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
             
-            <!-- Columna Izquierda: Catálogo y Filtros (Ocupa todo en móvil) -->
+            <!-- Columna Izquierda: Autenticación Google + Catálogo -->
             <div class="lg:col-span-2 bg-[#111827] rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-xl space-y-3">
                 
-                <!-- Autenticación móvil compacta -->
-                <div class="bg-[#090d16] p-3 rounded-xl border border-slate-800 flex flex-col sm:flex-row gap-2 items-center justify-between">
-                    <div class="w-full sm:w-auto flex-grow">
-                        <input type="email" id="seller-user" placeholder="Tu email de vendedor autorizado..." class="w-full bg-[#111827] border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+                <!-- Panel de Acceso con Google -->
+                <div id="login-container" class="bg-[#090d16] p-4 rounded-xl border border-slate-800 text-center space-y-3">
+                    <p class="text-xs text-slate-300 font-semibold">Identifícate con la cuenta de Gmail autorizada del club:</p>
+                    
+                    <!-- Botón Oficial Google Sign-In -->
+                    <div id="g_id_onload"
+                         data-client_id="1094165050392-kdao9urr97gpghd4m306mb1hns7jfstj.apps.googleusercontent.com"
+                         data-callback="handleCredentialResponse"
+                         data-auto_prompt="false">
                     </div>
-                    <button onclick="loadInventoryFromSheet()" class="w-full sm:w-auto bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold px-4 py-2 rounded-lg text-xs uppercase tracking-wider transition cursor-pointer whitespace-nowrap">
-                        <i class="fa-solid fa-key mr-1"></i> Validar Acceso
-                    </button>
+                    <div class="g_id_signin flex justify-center" data-type="standard" data-shape="pill" data-theme="filled_black" data-text="signin_with"></div>
+                    
+                    <p id="logged-user-display" class="text-xs font-mono text-cyan-400 font-bold hidden"></p>
                 </div>
 
-                <!-- Barra de Filtros -->
-                <div class="flex justify-between items-center bg-[#090d16] p-2.5 rounded-xl border border-slate-800">
+                <!-- Barra de Filtros (Oculta hasta loguearse) -->
+                <div id="filter-bar-container" class="hidden justify-between items-center bg-[#090d16] p-2.5 rounded-xl border border-slate-800">
                     <div class="flex items-center space-x-1.5 truncate pr-2">
                         <i class="fa-solid fa-filter text-cyan-400 text-xs"></i>
                         <span id="active-filter-label" class="text-xs text-slate-300 font-semibold truncate">Todas las categorías</span>
@@ -90,7 +94,7 @@
                     </div>
                     <div id="tpv-products-list" class="space-y-2 max-h-[50vh] lg:max-h-[450px] overflow-y-auto pr-1">
                         <div class="p-6 text-center text-slate-500 text-xs italic bg-[#090d16] rounded-xl border border-slate-800">
-                            Introduce tu email arriba y valida tu acceso para consultar el catálogo.
+                            Inicia sesión con Google arriba para desbloquear el catálogo.
                         </div>
                     </div>
                 </div>
@@ -98,7 +102,6 @@
 
             <!-- Columna Derecha / Escritorio: Carrito Fijo en Desktop -->
             <div class="hidden lg:flex bg-[#111827] rounded-2xl p-5 border border-slate-800 shadow-xl flex-col justify-between space-y-5 h-fit sticky top-20">
-                <!-- Contenido de carrito idéntico al drawer móvil -->
                 <div id="desktop-cart-wrapper" class="space-y-4"></div>
             </div>
         </section>
@@ -108,7 +111,7 @@
             <div class="space-y-3 border-b border-slate-800 pb-3">
                 <div class="flex justify-between items-center">
                     <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center space-x-1.5">
-                        <i class="fa-solid fa-warehouse text-cyan-400"></i> <span>Control de Inventario</span>
+                        <i class="fa-solid fa-warehouse text-cyan-400"></i> <span>Control de Inventario y Proveedores</span>
                     </h2>
                     <span id="inv-showing-count" class="text-xs font-mono text-slate-400"></span>
                 </div>
@@ -131,7 +134,7 @@
                         </tr>
                     </thead>
                     <tbody id="inventory-table-body" class="divide-y divide-slate-800/60 text-xs">
-                        <tr><td colspan="6" class="p-6 text-center text-slate-500">Inicia sesión para consultar el inventario.</td></tr>
+                        <tr><td colspan="6" class="p-6 text-center text-slate-500">Inicia sesión con Google para ver el inventario.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -202,8 +205,6 @@
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
-
-            <!-- Contenido del carrito compartido -->
             <div id="shared-cart-content" class="space-y-4 overflow-y-auto flex-grow pr-1"></div>
         </div>
     </div>
@@ -236,8 +237,10 @@
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzD50qz62KhtVF2i1mvnA2MNx9mRGmco4t8Xe20XRDAtBMz3ThFPNR3Un9OX6zZGRFE0A/exec";
+        // ⚠️ Sustituye por la URL de tu aplicación web de Google Apps Script
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz1BCaZe8zWor9IJaUk3ta0W7X_HPJ_HYA9Oa-EM08IIDTh27VnRgf-vrUmCmGBRzb-Tw/exec";
 
+        let authenticatedEmail = '';
         let inventory = [];
         let cart = [];
         let selectedCategory = '';
@@ -245,6 +248,28 @@
         let saleType = 'Fuera';
         let invCategory = '';
         let invSupplier = '';
+
+        // --- MANEJADOR DE GOOGLE SIGN-IN ---
+        function handleCredentialResponse(response) {
+            try {
+                const base64Url = response.credential.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                
+                const googleUser = JSON.parse(jsonPayload);
+                authenticatedEmail = googleUser.email;
+
+                document.getElementById('logged-user-display').textContent = `Cuenta activa: ${authenticatedEmail}`;
+                document.getElementById('logged-user-display').classList.remove('hidden');
+                document.getElementById('auth-status-badge').className = "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                document.getElementById('auth-status-badge').innerHTML = `<span class="w-1.5 h-1.5 mr-1 bg-emerald-500 rounded-full animate-ping"></span> Conectado`;
+
+                loadInventoryFromSheet();
+            } catch (e) {
+                console.error("Error al procesar credenciales de Google:", e);
+                alert("Error al iniciar sesión con Google.");
+            }
+        }
 
         function extractTag(desc, cat) {
             if (!desc) return 'Estándar';
@@ -276,55 +301,58 @@
             return 'Estándar';
         }
 
-async function loadInventoryFromSheet() {
-    const counterEl = document.getElementById('header-stock-counter');
-    counterEl.textContent = "Verificando cuenta de Google...";
+        async function loadInventoryFromSheet() {
+            if (!authenticatedEmail) {
+                alert("Inicia sesión con Google primero.");
+                return;
+            }
 
-    try {
-        const response = await fetch(WEB_APP_URL);
-        const result = await response.json();
-        
-        if (result.status !== 'success') {
-            alert("Acceso denegado: " + result.message);
-            counterEl.textContent = "Acceso no autorizado";
-            return;
+            const counterEl = document.getElementById('header-stock-counter');
+            counterEl.textContent = "Verificando lista blanca...";
+
+            try {
+                const response = await fetch(`${WEB_APP_URL}?email=${encodeURIComponent(authenticatedEmail)}`);
+                const result = await response.json();
+                
+                if (result.status !== 'success') {
+                    alert("Acceso denegado: " + result.message);
+                    counterEl.textContent = "Acceso no autorizado";
+                    return;
+                }
+
+                inventory = result.data.map(row => {
+                    const estadoVal = row['Estado'] ? row['Estado'].toString().toUpperCase() : 'DISPONIBLE';
+                    const isAvailable = estadoVal.includes('DISPONIBLE') || estadoVal.includes('SÍ') || estadoVal.includes('SI') || estadoVal === 'S' || estadoVal === '';
+
+                    return {
+                        id: row['ID'] || '',
+                        supplier: row['AlbaranProveedor'] || 'General',
+                        desc: row['Descripcion'] || '',
+                        category: row['Categoria'] || 'General',
+                        price: parseFloat(row['Precio']) || 0,
+                        discount: parseFloat(row['Descuento_Club']) || 0,
+                        tag: extractTag(row['Descripcion'], row['Categoria']),
+                        available: isAvailable,
+                        saleDate: row['Fecha_Venta'] || '',
+                        saleType: row['Tipo_Venta'] || '',
+                        seller: row['Vendedor'] || '',
+                        finalPrice: parseFloat(row['Precio_Final']) || 0
+                    };
+                });
+
+                document.getElementById('filter-bar-container').classList.remove('hidden');
+                document.getElementById('filter-bar-container').classList.add('flex');
+                updateHeaderStock();
+                filterTpvProducts();
+                renderCartUI();
+                if(!document.getElementById('tab-inventory').classList.contains('hidden')) renderInvChips();
+                if(!document.getElementById('tab-sales').classList.contains('hidden')) renderSales();
+            } catch (error) {
+                console.error(error);
+                counterEl.textContent = "Error de conexión";
+                alert("No se pudo conectar con Google Sheets.");
+            }
         }
-
-        // Guardamos opcionalmente el email autenticado detectado por el servidor
-        window.authenticatedUser = result.user;
-
-        inventory = result.data.map(row => {
-            const estadoVal = row['Estado'] ? row['Estado'].toString().toUpperCase() : 'DISPONIBLE';
-            const isAvailable = estadoVal.includes('DISPONIBLE') || estadoVal.includes('SÍ') || estadoVal.includes('SI') || estadoVal === 'S' || estadoVal === '';
-
-            return {
-                id: row['ID'] || '',
-                supplier: row['AlbaranProveedor'] || 'General',
-                desc: row['Descripcion'] || '',
-                category: row['Categoria'] || 'General',
-                price: parseFloat(row['Precio']) || 0,
-                discount: parseFloat(row['Descuento_Club']) || 0,
-                tag: extractTag(row['Descripcion'], row['Categoria']),
-                available: isAvailable,
-                saleDate: row['Fecha_Venta'] || '',
-                saleType: row['Tipo_Venta'] || '',
-                seller: row['Vendedor'] || '',
-                finalPrice: parseFloat(row['Precio_Final']) || 0
-            };
-        });
-
-        updateHeaderStock();
-        filterTpvProducts();
-        if(!document.getElementById('tab-inventory').classList.contains('hidden')) renderInvChips();
-        counterEl.textContent = `Sesión iniciada como ${result.user}`;
-    } catch (error) {
-        console.error(error);
-        counterEl.textContent = "Error de conexión";
-        alert("No se pudo conectar con Google Sheets.");
-    }
-}
-
-
 
         function updateHeaderStock() {
             const avail = inventory.filter(p => p.available).length;
@@ -388,7 +416,7 @@ async function loadInventoryFromSheet() {
             const list = document.getElementById('tpv-products-list');
 
             if (inventory.length === 0) {
-                list.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">Valida tu acceso para ver el catálogo.</p>`;
+                list.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">Inicia sesión con Google para ver el catálogo.</p>`;
                 return;
             }
             if (filtered.length === 0) {
@@ -461,7 +489,6 @@ async function loadInventoryFromSheet() {
             });
             const totalSum = baseSum - discSum;
 
-            // Actualizar barra flotante móvil
             const floatBar = document.getElementById('mobile-floating-cart-bar');
             document.getElementById('mob-cart-count').textContent = cart.length;
             document.getElementById('mob-cart-total').textContent = totalSum.toFixed(2) + ' €';
@@ -473,7 +500,6 @@ async function loadInventoryFromSheet() {
                 toggleCartDrawer(false);
             }
 
-            // HTML común del carrito
             const cartHtml = `
                 <div class="space-y-3 max-h-[35vh] overflow-y-auto pr-1">
                     ${cart.length === 0 ? '<div class="p-4 bg-[#090d16] rounded-xl border border-dashed border-slate-800 text-center text-slate-500 text-xs">El carrito está vacío</div>' : 
@@ -514,7 +540,6 @@ async function loadInventoryFromSheet() {
                 </button>
             `;
 
-            // Inyectar en escritorio y en drawer móvil
             const desktopWrapper = document.getElementById('desktop-cart-wrapper');
             if(desktopWrapper) desktopWrapper.innerHTML = cartHtml;
             const sharedContent = document.getElementById('shared-cart-content');
@@ -529,8 +554,7 @@ async function loadInventoryFromSheet() {
 
         async function completeSale() {
             if (cart.length === 0) return alert('El carrito está vacío.');
-            const sellerInput = document.getElementById('seller-user').value.trim();
-            if (!sellerInput) return alert('Introduce tu correo de vendedor.');
+            if (!authenticatedEmail) return alert('Sesión no iniciada.');
 
             const isClub = saleType === 'Club';
             const itemsPayload = cart.map(item => ({
@@ -542,7 +566,7 @@ async function loadInventoryFromSheet() {
                 const response = await fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ items: itemsPayload, saleType: saleType, seller: sellerInput })
+                    body: JSON.stringify({ items: itemsPayload, saleType: saleType, seller: authenticatedEmail })
                 });
                 const result = await response.json();
 
@@ -576,7 +600,7 @@ async function loadInventoryFromSheet() {
             if (invCategory) list = list.filter(p => p.category === invCategory);
             if (invSupplier) list = list.filter(p => p.supplier === invSupplier);
             document.getElementById('inv-showing-count').textContent = `${list.length} uds`;
-            document.getElementById('inventory-table-body').innerHTML = inventory.length === 0 ? `<tr><td colspan="6" class="p-6 text-center text-slate-500">Inicia sesión arriba.</td></tr>` : list.map(p => `
+            document.getElementById('inventory-table-body').innerHTML = inventory.length === 0 ? `<tr><td colspan="6" class="p-6 text-center text-slate-500">Inicia sesión con Google.</td></tr>` : list.map(p => `
                 <tr class="hover:bg-slate-800/40">
                     <td class="p-2.5 font-mono text-cyan-400 font-bold">${p.id}</td>
                     <td class="p-2.5 text-white truncate max-w-[140px]">${p.desc}</td>
