@@ -3,254 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dragons El Puig · TPV Seguro</title>
+    <title>Dragons El Puig · TPV Móvil Optimizado</title>
     <script src="https://cdn.jsdelivr.net/npm/tailwindcss-cdn@3.4.10/tailwindcss.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: #090d16; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 99px; }
     </style>
 </head>
-<body class="bg-[#090d16] text-slate-100 min-h-screen flex flex-col selection:bg-cyan-500 selection:text-slate-950">
+<body class="bg-[#090d16] text-slate-100 min-h-screen flex flex-col selection:bg-cyan-500 selection:text-slate-950 pb-20 lg:pb-0">
 
-    <!-- Header -->
-    <header class="sticky top-0 z-50 backdrop-blur-xl bg-[#090d16]/85 border-b border-slate-800/80 px-5 py-3.5 flex justify-between items-center">
-        <div class="flex items-center space-x-3">
-            <div class="bg-gradient-to-tr from-cyan-500 to-blue-600 text-slate-950 p-2.5 rounded-2xl font-black shadow-lg shadow-cyan-500/20 flex items-center justify-center">
-                <i class="fa-solid fa-hockey-puck text-lg"></i>
+    <!-- Header Móvil Compacto -->
+    <header class="sticky top-0 z-40 backdrop-blur-xl bg-[#090d16]/90 border-b border-slate-800/80 px-4 py-3 flex justify-between items-center">
+        <div class="flex items-center space-x-2.5">
+            <div class="bg-gradient-to-tr from-cyan-500 to-blue-600 text-slate-950 p-2 rounded-xl font-black shadow-lg shadow-cyan-500/20 flex items-center justify-center">
+                <i class="fa-solid fa-hockey-puck text-sm"></i>
             </div>
             <div>
-                <h1 class="text-base font-extrabold tracking-tight text-white flex items-center gap-2">
-                    Dragons El Puig <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">TPV Seguro</span>
+                <h1 class="text-sm font-extrabold tracking-tight text-white flex items-center gap-1.5">
+                    Dragons El Puig <span class="text-[9px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">TPV Móvil</span>
                 </h1>
-                <p class="text-[11px] text-slate-400 font-medium" id="header-stock-counter">Verificando acceso...</p>
+                <p class="text-[10px] text-slate-400 font-medium" id="header-stock-counter">Inicia sesión para ver stock...</p>
             </div>
         </div>
         <div class="flex items-center space-x-2">
-            <button onclick="loadInventoryFromSheet()" title="Sincronizar Stock" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 p-2 rounded-xl text-xs transition cursor-pointer">
+            <button onclick="loadInventoryFromSheet()" title="Sincronizar" class="bg-slate-800/80 hover:bg-slate-700 text-cyan-400 p-2 rounded-xl text-xs transition cursor-pointer">
                 <i class="fa-solid fa-sync" id="sync-icon"></i>
             </button>
-            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                <span class="w-1.5 h-1.5 mr-1.5 bg-emerald-500 rounded-full animate-ping"></span> Protegido
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span class="w-1.5 h-1.5 mr-1 bg-emerald-500 rounded-full animate-ping"></span> Seguro
             </span>
         </div>
     </header>
 
-    <!-- Navegación -->
-    <nav class="bg-[#0e1626]/70 border-b border-slate-800/60 px-4 flex space-x-2 backdrop-blur-md overflow-x-auto">
-        <button onclick="switchTab('tpv')" id="btn-tpv" class="py-3 px-4 font-bold text-xs uppercase tracking-wider border-b-2 border-cyan-400 text-cyan-400 flex items-center space-x-2 cursor-pointer transition whitespace-nowrap">
+    <!-- Navegación por pestañas -->
+    <nav class="bg-[#0e1626]/80 border-b border-slate-800/60 px-3 flex space-x-1 backdrop-blur-md overflow-x-auto">
+        <button onclick="switchTab('tpv')" id="btn-tpv" class="py-2.5 px-3.5 font-bold text-xs uppercase tracking-wider border-b-2 border-cyan-400 text-cyan-400 flex items-center space-x-1.5 cursor-pointer transition whitespace-nowrap">
             <i class="fa-solid fa-cash-register"></i> <span>Caja / TPV</span>
         </button>
-        <button onclick="switchTab('inventory')" id="btn-inventory" class="py-3 px-4 font-bold text-xs uppercase tracking-wider border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2 cursor-pointer transition whitespace-nowrap">
-            <i class="fa-solid fa-boxes-stacked"></i> <span>Inventario y Proveedores</span>
+        <button onclick="switchTab('inventory')" id="btn-inventory" class="py-2.5 px-3.5 font-bold text-xs uppercase tracking-wider border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-1.5 cursor-pointer transition whitespace-nowrap">
+            <i class="fa-solid fa-boxes-stacked"></i> <span>Inventario</span>
         </button>
-        <button onclick="switchTab('sales')" id="btn-sales" class="py-3 px-4 font-bold text-xs uppercase tracking-wider border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2 cursor-pointer transition whitespace-nowrap">
+        <button onclick="switchTab('sales')" id="btn-sales" class="py-2.5 px-3.5 font-bold text-xs uppercase tracking-wider border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-1.5 cursor-pointer transition whitespace-nowrap">
             <i class="fa-solid fa-chart-line"></i> <span>Ventas</span>
         </button>
     </nav>
 
     <!-- Contenido Principal -->
-    <main class="flex-grow p-4 sm:p-6 max-w-7xl mx-auto w-full space-y-6">
+    <main class="flex-grow p-3 sm:p-5 max-w-7xl mx-auto w-full space-y-4">
         
         <!-- ================= SECCIÓN TPV ================= -->
-        <section id="tab-tpv" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 bg-[#111827] rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-2xl space-y-4">
+        <section id="tab-tpv" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            
+            <!-- Columna Izquierda: Catálogo y Filtros (Ocupa todo en móvil) -->
+            <div class="lg:col-span-2 bg-[#111827] rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-xl space-y-3">
                 
-                <div class="flex justify-between items-center bg-[#090d16] p-3 rounded-2xl border border-slate-800">
-                    <div class="flex items-center space-x-2">
-                        <i class="fa-solid fa-filter text-cyan-400 text-sm"></i>
-                        <span class="text-xs font-bold text-slate-200 uppercase tracking-wider">Filtros Activos:</span>
-                        <span id="active-filter-label" class="text-xs text-cyan-400 font-semibold">Todas las categorías</span>
+                <!-- Autenticación móvil compacta -->
+                <div class="bg-[#090d16] p-3 rounded-xl border border-slate-800 flex flex-col sm:flex-row gap-2 items-center justify-between">
+                    <div class="w-full sm:w-auto flex-grow">
+                        <input type="email" id="seller-user" placeholder="Tu email de vendedor autorizado..." class="w-full bg-[#111827] border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
                     </div>
-                    <button onclick="toggleFilterModal(true)" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center space-x-2 transition shadow-md shadow-cyan-500/20 cursor-pointer">
-                        <i class="fa-solid fa-sliders"></i> <span>Filtrar Catálogo</span>
+                    <button onclick="loadInventoryFromSheet()" class="w-full sm:w-auto bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold px-4 py-2 rounded-lg text-xs uppercase tracking-wider transition cursor-pointer whitespace-nowrap">
+                        <i class="fa-solid fa-key mr-1"></i> Validar Acceso
                     </button>
                 </div>
 
-                <div class="space-y-2 pt-2">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Artículos Disponibles (Pulsa para añadir)</h3>
+                <!-- Barra de Filtros -->
+                <div class="flex justify-between items-center bg-[#090d16] p-2.5 rounded-xl border border-slate-800">
+                    <div class="flex items-center space-x-1.5 truncate pr-2">
+                        <i class="fa-solid fa-filter text-cyan-400 text-xs"></i>
+                        <span id="active-filter-label" class="text-xs text-slate-300 font-semibold truncate">Todas las categorías</span>
+                    </div>
+                    <button onclick="toggleFilterModal(true)" class="bg-cyan-500/10 hover:bg-cyan-500 text-cyan-400 hover:text-slate-950 border border-cyan-500/30 px-3 py-1.5 rounded-lg text-xs font-extrabold flex items-center space-x-1.5 transition cursor-pointer shrink-0">
+                        <i class="fa-solid fa-sliders"></i> <span>Filtrar</span>
+                    </button>
+                </div>
+
+                <!-- Listado de productos -->
+                <div class="space-y-2 pt-1">
+                    <div class="flex justify-between items-center px-1">
+                        <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Artículos Disponibles</h3>
                         <span id="filtered-count-badge" class="text-[11px] font-mono text-cyan-400 font-bold">0 uds</span>
                     </div>
-                    <div id="tpv-products-list" class="space-y-2 max-h-[420px] overflow-y-auto pr-1"></div>
+                    <div id="tpv-products-list" class="space-y-2 max-h-[50vh] lg:max-h-[450px] overflow-y-auto pr-1">
+                        <div class="p-6 text-center text-slate-500 text-xs italic bg-[#090d16] rounded-xl border border-slate-800">
+                            Introduce tu email arriba y valida tu acceso para consultar el catálogo.
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Carrito / Resumen de Venta Multicompra -->
-            <div class="bg-[#111827] rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-2xl flex flex-col justify-between space-y-6 h-fit sticky top-20">
-                <div class="space-y-4">
-                    <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center space-x-2">
-                        <i class="fa-solid fa-cart-shopping text-emerald-400"></i> <span>Carrito de Venta Actual</span>
-                    </h2>
-                    
-                    <div id="cart-items-container" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
-                        <div class="p-3 bg-[#090d16] rounded-2xl border border-dashed border-slate-800 text-center text-slate-500 text-xs">
-                            El carrito está vacío
-                        </div>
-                    </div>
-
-                    <div class="space-y-1.5 pt-2 border-t border-slate-800">
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tipo de Venta (Aplica a todo)</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button type="button" onclick="setSaleType('Fuera')" id="btn-sale-fuera" class="py-2 px-2 rounded-xl text-xs font-bold bg-cyan-500 text-slate-950 transition cursor-pointer">
-                                Fuera (General)
-                            </button>
-                            <button type="button" onclick="setSaleType('Club')" id="btn-sale-club" class="py-2 px-2 rounded-xl text-xs font-bold bg-[#090d16] text-slate-400 border border-slate-800 transition cursor-pointer">
-                                Club (-15% Dto)
-                            </button>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Vendedor (Email Autorizado)</label>
-                        <!-- Ahora (vacío y con aviso) -->
-<input type="email" id="seller-user" placeholder="Introduce tu email de acceso..." class="w-full bg-[#090d16] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
-<button onclick="loadInventoryFromSheet()" class="mt-2 w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-2 rounded-xl text-xs transition cursor-pointer">
-    Verificar Acceso y Cargar TPV
-</button>
-                    </div>
-
-                    <div class="pt-3 border-t border-slate-800/80 space-y-1.5 text-sm">
-                        <div class="flex justify-between text-slate-400 text-xs">
-                            <span>Subtotal Base:</span>
-                            <span id="summary-base" class="text-white font-mono font-semibold">0.00 €</span>
-                        </div>
-                        <div class="flex justify-between text-slate-400 text-xs">
-                            <span>Descuento Club:</span>
-                            <span id="summary-discount" class="text-emerald-400 font-mono font-semibold">-0.00 €</span>
-                        </div>
-                        <div class="flex justify-between text-base font-extrabold text-white pt-2 border-t border-slate-800">
-                            <span>Total Carrito:</span>
-                            <span id="summary-total" class="text-cyan-400 font-mono">0.00 €</span>
-                        </div>
-                    </div>
-                </div>
-
-                <button onclick="completeSale()" id="btn-checkout" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider py-3.5 rounded-2xl shadow-lg shadow-emerald-500/20 cursor-pointer transition transform active:scale-[0.98]">
-                    <i class="fa-solid fa-check-circle mr-1.5"></i> Cobrar y Registrar Todo
-                </button>
+            <!-- Columna Derecha / Escritorio: Carrito Fijo en Desktop -->
+            <div class="hidden lg:flex bg-[#111827] rounded-2xl p-5 border border-slate-800 shadow-xl flex-col justify-between space-y-5 h-fit sticky top-20">
+                <!-- Contenido de carrito idéntico al drawer móvil -->
+                <div id="desktop-cart-wrapper" class="space-y-4"></div>
             </div>
         </section>
 
         <!-- ================= SECCIÓN INVENTARIO ================= -->
-        <section id="tab-inventory" class="hidden bg-[#111827] rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-2xl space-y-5">
-            <div class="space-y-3 border-b border-slate-800 pb-4">
+        <section id="tab-inventory" class="hidden bg-[#111827] rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-xl space-y-4">
+            <div class="space-y-3 border-b border-slate-800 pb-3">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center space-x-2">
-                        <i class="fa-solid fa-warehouse text-cyan-400"></i> <span>Control de Inventario y Liquidación por Proveedor</span>
+                    <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center space-x-1.5">
+                        <i class="fa-solid fa-warehouse text-cyan-400"></i> <span>Control de Inventario</span>
                     </h2>
                     <span id="inv-showing-count" class="text-xs font-mono text-slate-400"></span>
                 </div>
-                <div class="flex flex-col sm:flex-row gap-2 justify-between">
+                <div class="flex flex-col gap-2">
                     <div id="inv-category-chips" class="flex flex-wrap gap-1.5"></div>
                     <div id="inv-supplier-chips" class="flex flex-wrap gap-1.5"></div>
                 </div>
             </div>
 
-            <div class="overflow-x-auto max-h-[550px]">
+            <div class="overflow-x-auto max-h-[60vh]">
                 <table class="w-full text-left text-sm text-slate-300">
                     <thead class="bg-[#090d16] text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800 sticky top-0">
                         <tr>
-                            <th class="p-3">ID</th>
-                            <th class="p-3">Descripción</th>
-                            <th class="p-3">Categoría</th>
-                            <th class="p-3">Proveedor</th>
-                            <th class="p-3">Precio</th>
-                            <th class="p-3">Estado</th>
+                            <th class="p-2.5">ID</th>
+                            <th class="p-2.5">Descripción</th>
+                            <th class="p-2.5">Cat.</th>
+                            <th class="p-2.5">Prov.</th>
+                            <th class="p-2.5">Precio</th>
+                            <th class="p-2.5">Estado</th>
                         </tr>
                     </thead>
-                    <tbody id="inventory-table-body" class="divide-y divide-slate-800/60 text-xs"></tbody>
+                    <tbody id="inventory-table-body" class="divide-y divide-slate-800/60 text-xs">
+                        <tr><td colspan="6" class="p-6 text-center text-slate-500">Inicia sesión para consultar el inventario.</td></tr>
+                    </tbody>
                 </table>
             </div>
         </section>
 
         <!-- ================= SECCIÓN HISTORIAL DE VENTAS ================= -->
-        <section id="tab-sales" class="hidden bg-[#111827] rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-2xl space-y-5">
-            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-slate-800 pb-4">
-                <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center space-x-2">
-                    <i class="fa-solid fa-chart-line text-emerald-400"></i> <span>Historial de Ventas y Liquidaciones</span>
+        <section id="tab-sales" class="hidden bg-[#111827] rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-xl space-y-4">
+            <div class="border-b border-slate-800 pb-3">
+                <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center space-x-1.5">
+                    <i class="fa-solid fa-chart-line text-emerald-400"></i> <span>Historial de Ventas</span>
                 </h2>
-                
-                <div class="grid grid-cols-2 gap-2.5 w-full lg:w-auto">
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Desde</label>
-                        <input type="date" id="sales-date-from" onchange="renderSales()" class="bg-[#090d16] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white w-full">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Hasta</label>
-                        <input type="date" id="sales-date-to" onchange="renderSales()" class="bg-[#090d16] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white w-full">
-                    </div>
-                </div>
             </div>
-
-            <div class="grid grid-cols-2 gap-4 bg-[#090d16] p-4 rounded-2xl border border-slate-800">
+            <div class="grid grid-cols-2 gap-3 bg-[#090d16] p-3 rounded-xl border border-slate-800">
                 <div>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase">Unidades Vendidas</span>
-                    <h3 id="sales-count" class="text-2xl font-extrabold text-white mt-0.5">0</h3>
+                    <span class="text-[9px] font-bold text-slate-400 uppercase">Vendidas</span>
+                    <h3 id="sales-count" class="text-xl font-extrabold text-white">0</h3>
                 </div>
                 <div>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase">Caja Total</span>
-                    <h3 id="sales-total-amount" class="text-2xl font-extrabold text-cyan-400 font-mono mt-0.5">0.00 €</h3>
+                    <span class="text-[9px] font-bold text-slate-400 uppercase">Caja Total</span>
+                    <h3 id="sales-total-amount" class="text-xl font-extrabold text-cyan-400 font-mono">0.00 €</h3>
                 </div>
             </div>
-
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto max-h-[50vh]">
                 <table class="w-full text-left text-sm text-slate-300">
                     <thead class="bg-[#090d16] text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800">
                         <tr>
-                            <th class="p-3">ID</th>
-                            <th class="p-3">Artículo</th>
-                            <th class="p-3">Proveedor</th>
-                            <th class="p-3">Fecha</th>
-                            <th class="p-3">Tipo</th>
-                            <th class="p-3">Vendedor</th>
-                            <th class="p-3">Total</th>
-                            <th class="p-3 text-center">Acción</th>
+                            <th class="p-2.5">ID</th>
+                            <th class="p-2.5">Artículo</th>
+                            <th class="p-2.5">Prov.</th>
+                            <th class="p-2.5">Fecha</th>
+                            <th class="p-2.5">Tipo</th>
+                            <th class="p-2.5">Total</th>
                         </tr>
                     </thead>
-                    <tbody id="sales-table-body" class="divide-y divide-slate-800/60 text-xs"></tbody>
+                    <tbody id="sales-table-body" class="divide-y divide-slate-800/60 text-xs">
+                        <tr><td colspan="6" class="p-6 text-center text-slate-500 text-xs">Sin registros.</td></tr>
+                    </tbody>
                 </table>
             </div>
         </section>
 
     </main>
 
-    <!-- MODAL / MENÚ DESPLEGABLE DE FILTROS -->
+    <!-- BARRA INFERIOR FLOTANTE PARA MÓVIL (CARRITO / COBRO) -->
+    <div id="mobile-floating-cart-bar" class="fixed bottom-0 left-0 right-0 z-50 bg-[#111827]/95 backdrop-blur-xl border-t border-slate-800 p-3 px-4 flex justify-between items-center lg:hidden shadow-2xl transition-transform duration-300 translate-y-full">
+        <div class="flex items-center space-x-3">
+            <div class="bg-emerald-500/10 text-emerald-400 p-2.5 rounded-xl border border-emerald-500/20 font-mono font-bold text-xs">
+                <i class="fa-solid fa-cart-shopping mr-1"></i> <span id="mob-cart-count">0</span>
+            </div>
+            <div>
+                <p class="text-[10px] text-slate-400 uppercase font-bold">Total Carrito</p>
+                <p id="mob-cart-total" class="text-sm font-mono font-extrabold text-cyan-400">0.00 €</p>
+            </div>
+        </div>
+        <button onclick="toggleCartDrawer(true)" class="bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-extrabold px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 cursor-pointer active:scale-95 transition">
+            Ver Carrito y Cobrar <i class="fa-solid fa-chevron-up ml-1"></i>
+        </button>
+    </div>
+
+    <!-- MODAL / DRAWER DESPLEGABLE DEL CARRITO (MÓVIL Y TABLET) -->
+    <div id="cart-drawer" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-end justify-center">
+        <div class="bg-[#111827] w-full max-w-lg rounded-t-3xl border-t border-slate-800 p-5 space-y-4 shadow-2xl max-h-[85vh] flex flex-col animate-in slide-in-from-bottom duration-200">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center space-x-2">
+                    <i class="fa-solid fa-cart-shopping text-emerald-400"></i> <span>Carrito de Venta Actual</span>
+                </h3>
+                <button onclick="toggleCartDrawer(false)" class="text-slate-400 hover:text-white p-2 cursor-pointer">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Contenido del carrito compartido -->
+            <div id="shared-cart-content" class="space-y-4 overflow-y-auto flex-grow pr-1"></div>
+        </div>
+    </div>
+
+    <!-- MODAL DE FILTROS -->
     <div id="filter-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-[#111827] w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-slate-800 p-6 space-y-6 shadow-2xl animate-in fade-in slide-in-from-bottom duration-200">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-4">
-                <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center space-x-2">
-                    <i class="fa-solid fa-sliders text-cyan-400"></i> <span>Menú de Filtros del TPV</span>
+        <div class="bg-[#111827] w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-slate-800 p-5 space-y-5 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center space-x-2">
+                    <i class="fa-solid fa-sliders text-cyan-400"></i> <span>Filtrar Catálogo</span>
                 </h3>
                 <button onclick="toggleFilterModal(false)" class="text-slate-400 hover:text-white p-2 cursor-pointer">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
-
             <div class="space-y-2">
-                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">1. Seleccionar Categoría</label>
-                <div id="modal-category-chips" class="flex flex-wrap gap-2"></div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">1. Categoría</label>
+                <div id="modal-category-chips" class="flex flex-wrap gap-1.5"></div>
             </div>
-
             <div class="space-y-2">
-                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">2. Filtrar por Color / Subtipo</label>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">2. Subtipo / Color</label>
                 <div id="modal-subfilter-chips" class="flex flex-wrap gap-1.5">
-                    <span class="text-xs text-slate-500 italic py-1">Selecciona una categoría arriba...</span>
+                    <span class="text-xs text-slate-500 italic">Selecciona categoría...</span>
                 </div>
             </div>
-
-            <button onclick="applyAndCloseFilters()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider py-3.5 rounded-2xl shadow-lg shadow-cyan-500/20 cursor-pointer transition">
-                Aplicar Filtros y Ver Resultados
+            <button onclick="applyAndCloseFilters()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider py-3 rounded-xl shadow-lg cursor-pointer transition">
+                Aplicar Filtros
             </button>
         </div>
     </div>
 
     <script>
-        // ⚠️ PEGA AQUÍ LA URL DE TU APLICACIÓN WEB DE GOOGLE APPS SCRIPT
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz94B8lxEk__OtOX5UIJWXfd_8QNp7K32r-BVWbd5SpZYEiqwaae_XxsNtuUULLLPYObQ/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/TU_URL_DE_APPS_SCRIPT_AQUI/exec";
 
         let inventory = [];
         let cart = [];
@@ -290,19 +276,17 @@
             return 'Estándar';
         }
 
-        // --- CARGAR INVENTARIO SEGURO DESDE GOOGLE SHEETS ---
         async function loadInventoryFromSheet() {
             const counterEl = document.getElementById('header-stock-counter');
-            const syncIcon = document.getElementById('sync-icon');
             const userEmail = document.getElementById('seller-user').value.trim();
 
             if (!userEmail) {
-                counterEl.textContent = "Introduce tu email";
+                alert("Introduce tu email de vendedor autorizado.");
+                counterEl.textContent = "Acceso requerido";
                 return;
             }
 
             counterEl.textContent = "Verificando acceso...";
-            if(syncIcon) syncIcon.classList.add('fa-spin');
 
             try {
                 const response = await fetch(`${WEB_APP_URL}?email=${encodeURIComponent(userEmail)}`);
@@ -310,12 +294,13 @@
                 
                 if (result.status !== 'success') {
                     alert("Acceso denegado: " + result.message);
-                    counterEl.textContent = "Acceso no autorizado";
+                    counterEl.textContent = "Acceso denegado";
+                    inventory = [];
+                    filterTpvProducts();
                     return;
                 }
 
-                const rows = result.data;
-                inventory = rows.map(row => {
+                inventory = result.data.map(row => {
                     const estadoVal = row['Estado'] ? row['Estado'].toString().toUpperCase() : 'DISPONIBLE';
                     const isAvailable = estadoVal.includes('DISPONIBLE') || estadoVal.includes('SÍ') || estadoVal.includes('SI') || estadoVal === 'S' || estadoVal === '';
 
@@ -325,7 +310,7 @@
                         desc: row['Descripcion'] || '',
                         category: row['Categoria'] || 'General',
                         price: parseFloat(row['Precio']) || 0,
-                        discount: parseFloat(row['Descuento_Club']) || 15,
+                        discount: parseFloat(row['Descuento_Club']) || 0,
                         tag: extractTag(row['Descripcion'], row['Categoria']),
                         available: isAvailable,
                         saleDate: row['Fecha_Venta'] || '',
@@ -337,24 +322,19 @@
 
                 updateHeaderStock();
                 filterTpvProducts();
-                if(document.getElementById('tab-inventory').classList.contains('hidden') === false) {
-                    renderInvChips();
-                }
-                if(document.getElementById('tab-sales').classList.contains('hidden') === false) {
-                    renderSales();
-                }
+                renderCartUI();
+                if(!document.getElementById('tab-inventory').classList.contains('hidden')) renderInvChips();
+                alert("¡Acceso concedido! Catálogo sincronizado.");
             } catch (error) {
-                console.error("Error al cargar inventario:", error);
-                counterEl.textContent = "Error de conexión con Sheets";
-                alert("No se pudo conectar con Google Sheets de forma segura.");
-            } finally {
-                if(syncIcon) syncIcon.classList.remove('fa-spin');
+                console.error(error);
+                counterEl.textContent = "Error de conexión";
+                alert("No se pudo conectar con Google Sheets.");
             }
         }
 
         function updateHeaderStock() {
             const avail = inventory.filter(p => p.available).length;
-            document.getElementById('header-stock-counter').textContent = `${avail} uds disponibles de ${inventory.length}`;
+            document.getElementById('header-stock-counter').textContent = `${avail} disp. de ${inventory.length}`;
         }
 
         function switchTab(tabId) {
@@ -384,52 +364,26 @@
         function renderModalCategoryChips() {
             const categories = [...new Set(inventory.map(p => p.category))];
             const container = document.getElementById('modal-category-chips');
-            
-            container.innerHTML = `<button onclick="selectModalCategory('')" class="px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${selectedCategory === '' ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">Todas</button>` +
-                categories.map(cat => `
-                    <button onclick="selectModalCategory('${cat}')" class="px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${selectedCategory === cat ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">
-                        ${cat}
-                    </button>
-                `).join('');
+            if (categories.length === 0) {
+                container.innerHTML = `<span class="text-xs text-slate-500 italic">Inicia sesión primero...</span>`;
+                return;
+            }
+            container.innerHTML = `<button onclick="selectModalCategory('')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${selectedCategory === '' ? 'bg-cyan-500 text-slate-950' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">Todas</button>` +
+                categories.map(cat => `<button onclick="selectModalCategory('${cat}')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${selectedCategory === cat ? 'bg-cyan-500 text-slate-950' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">${cat}</button>`).join('');
         }
 
-        function selectModalCategory(cat) {
-            selectedCategory = cat;
-            selectedTag = '';
-            renderModalCategoryChips();
-            renderModalSubfilterChips();
-        }
+        function selectModalCategory(cat) { selectedCategory = cat; selectedTag = ''; renderModalCategoryChips(); renderModalSubfilterChips(); }
 
         function renderModalSubfilterChips() {
             const container = document.getElementById('modal-subfilter-chips');
-            if (!selectedCategory) {
-                container.innerHTML = `<span class="text-xs text-slate-500 italic py-1">Selecciona una categoría arriba...</span>`;
-                return;
-            }
-            const availableNotCart = inventory.filter(p => p.available && !cart.some(c => c.id === p.id));
-            const items = availableNotCart.filter(p => p.category === selectedCategory);
-            const tags = [...new Set(items.map(p => p.tag))];
-
-            container.innerHTML = `<button onclick="selectModalTag('')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${selectedTag === '' ? 'bg-blue-600 text-white' : 'bg-[#090d16] text-slate-400 border border-slate-800'}">Todos</button>` +
-                tags.map(t => `
-                    <button onclick="selectModalTag('${t}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${selectedTag === t ? 'bg-blue-600 text-white shadow' : 'bg-[#090d16] text-slate-400 border border-slate-800'}">
-                        ${t}
-                    </button>
-                `).join('');
+            if (!selectedCategory) { container.innerHTML = `<span class="text-xs text-slate-500 italic">Selecciona categoría...</span>`; return; }
+            const tags = [...new Set(inventory.filter(p => p.available && !cart.some(c => c.id === p.id) && p.category === selectedCategory).map(p => p.tag))];
+            container.innerHTML = `<button onclick="selectModalTag('')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${selectedTag === '' ? 'bg-blue-600 text-white' : 'bg-[#090d16] text-slate-400 border border-slate-800'}">Todos</button>` +
+                tags.map(t => `<button onclick="selectModalTag('${t}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${selectedTag === t ? 'bg-blue-600 text-white' : 'bg-[#090d16] text-slate-400 border border-slate-800'}">${t}</button>`).join('');
         }
 
-        function selectModalTag(tag) {
-            selectedTag = tag;
-            renderModalSubfilterChips();
-        }
-
-        function applyAndCloseFilters() {
-            toggleFilterModal(false);
-            let label = selectedCategory || 'Todas las categorías';
-            if (selectedTag) label += ` (${selectedTag})`;
-            document.getElementById('active-filter-label').textContent = label;
-            filterTpvProducts();
-        }
+        function selectModalTag(tag) { selectedTag = tag; renderModalSubfilterChips(); }
+        function applyAndCloseFilters() { toggleFilterModal(false); filterTpvProducts(); }
 
         function filterTpvProducts() {
             let filtered = inventory.filter(p => p.available && !cart.some(c => c.id === p.id));
@@ -439,8 +393,12 @@
             document.getElementById('filtered-count-badge').textContent = `${filtered.length} uds`;
             const list = document.getElementById('tpv-products-list');
 
+            if (inventory.length === 0) {
+                list.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">Valida tu acceso para ver el catálogo.</p>`;
+                return;
+            }
             if (filtered.length === 0) {
-                list.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No quedan unidades disponibles con este filtro.</p>`;
+                list.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No hay stock con este filtro.</p>`;
                 return;
             }
 
@@ -451,105 +409,134 @@
             });
 
             list.innerHTML = Object.values(grouped).map(({ sample, count }) => `
-                <div onclick='addToCart(${JSON.stringify(sample.desc)})' class="p-3.5 bg-[#090d16] border border-slate-800 rounded-2xl hover:border-cyan-500/80 transition flex justify-between items-center cursor-pointer group">
-                    <div class="pr-2">
-                        <div class="flex items-center gap-2">
-                            <span class="text-[10px] text-cyan-400 font-mono font-extrabold">${sample.category}</span>
-                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-semibold">${count} disp.</span>
-                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">${sample.supplier}</span>
+                <div onclick='addToCart(${JSON.stringify(sample.desc)})' class="p-3 bg-[#090d16] border border-slate-800 rounded-xl hover:border-cyan-500/80 transition flex justify-between items-center cursor-pointer group active:scale-[0.99]">
+                    <div class="pr-2 truncate">
+                        <div class="flex items-center gap-1.5 mb-1">
+                            <span class="text-[9px] text-cyan-400 font-mono font-bold">${sample.category}</span>
+                            <span class="text-[9px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-300 font-semibold">${count} disp.</span>
+                            <span class="text-[9px] px-1.5 py-0.2 rounded-full bg-blue-500/10 text-blue-400">${sample.supplier}</span>
                         </div>
-                        <h4 class="text-xs font-bold text-white group-hover:text-cyan-300 transition mt-1">${sample.desc}</h4>
-                        <span class="text-[11px] text-slate-400"><span class="font-mono text-slate-200">${sample.price.toFixed(2)} €</span></span>
+                        <h4 class="text-xs font-bold text-white group-hover:text-cyan-300 truncate">${sample.desc}</h4>
+                        <span class="text-xs font-mono text-slate-300">${sample.price.toFixed(2)} €</span>
                     </div>
                     <span class="bg-cyan-500/10 text-cyan-400 px-3 py-2 rounded-xl text-xs font-bold border border-cyan-500/20 group-hover:bg-cyan-500 group-hover:text-slate-950 transition shrink-0">
-                        <i class="fa-solid fa-plus mr-1"></i> Añadir
+                        <i class="fa-solid fa-plus"></i>
                     </span>
                 </div>
             `).join('');
         }
 
-        // --- GESTIÓN DEL CARRITO MULTICOMPRA ---
         function addToCart(desc) {
             const product = inventory.find(p => p.desc === desc && p.available && !cart.some(c => c.id === p.id));
-            if (!product) {
-                alert('No hay más unidades disponibles de este artículo en stock.');
-                return;
-            }
+            if (!product) return alert('No quedan más unidades.');
             cart.push(product);
-            renderCart();
+            renderCartUI();
             filterTpvProducts();
         }
 
         function removeFromCart(id) {
             cart = cart.filter(p => p.id !== id);
-            renderCart();
+            renderCartUI();
             filterTpvProducts();
-        }
-
-        function renderCart() {
-            const container = document.getElementById('cart-items-container');
-            if (cart.length === 0) {
-                container.innerHTML = `<div class="p-3 bg-[#090d16] rounded-2xl border border-dashed border-slate-800 text-center text-slate-500 text-xs">El carrito está vacío</div>`;
-                updateCartTotals();
-                return;
-            }
-
-            container.innerHTML = cart.map(item => {
-                const isClub = saleType === 'Club';
-                const disc = isClub ? (item.price * item.discount / 100) : 0;
-                const finalP = item.price - disc;
-                return `
-                    <div class="p-2.5 bg-[#090d16] rounded-xl border border-slate-800 flex justify-between items-center text-xs">
-                        <div class="pr-2">
-                            <span class="text-[10px] text-cyan-400 font-mono font-bold">${item.id}</span>
-                            <p class="font-bold text-white line-clamp-1">${item.desc}</p>
-                            <span class="text-[11px] text-emerald-400 font-mono">${finalP.toFixed(2)} € (${item.supplier})</span>
-                        </div>
-                        <button onclick="removeFromCart('${item.id}')" class="text-rose-400 hover:text-rose-300 p-1.5 cursor-pointer">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
-                `;
-            }).join('');
-
-            updateCartTotals();
         }
 
         function setSaleType(type) {
             saleType = type;
             const btnFuera = document.getElementById('btn-sale-fuera');
             const btnClub = document.getElementById('btn-sale-club');
-            if (type === 'Fuera') {
-                btnFuera.className = "py-2 px-2 rounded-xl text-xs font-bold bg-cyan-500 text-slate-950 transition cursor-pointer";
-                btnClub.className = "py-2 px-2 rounded-xl text-xs font-bold bg-[#090d16] text-slate-400 border border-slate-800 transition cursor-pointer";
-            } else {
-                btnClub.className = "py-2 px-2 rounded-xl text-xs font-bold bg-cyan-500 text-slate-950 transition cursor-pointer";
-                btnFuera.className = "py-2 px-2 rounded-xl text-xs font-bold bg-[#090d16] text-slate-400 border border-slate-800 transition cursor-pointer";
+            if (btnFuera && btnClub) {
+                if (type === 'Fuera') {
+                    btnFuera.className = "py-2 px-2 rounded-xl text-xs font-bold bg-cyan-500 text-slate-950 transition cursor-pointer";
+                    btnClub.className = "py-2 px-2 rounded-xl text-xs font-bold bg-[#090d16] text-slate-400 border border-slate-800 transition cursor-pointer";
+                } else {
+                    btnClub.className = "py-2 px-2 rounded-xl text-xs font-bold bg-cyan-500 text-slate-950 transition cursor-pointer";
+                    btnFuera.className = "py-2 px-2 rounded-xl text-xs font-bold bg-[#090d16] text-slate-400 border border-slate-800 transition cursor-pointer";
+                }
             }
-            renderCart();
+            renderCartUI();
         }
 
-        function updateCartTotals() {
-            const isClub = saleType === 'Club';
+        function renderCartUI() {
             let baseSum = 0;
             let discSum = 0;
+            const isClub = saleType === 'Club';
 
             cart.forEach(item => {
                 baseSum += item.price;
                 discSum += isClub ? (item.price * item.discount / 100) : 0;
             });
-
             const totalSum = baseSum - discSum;
-            document.getElementById('summary-base').textContent = baseSum.toFixed(2) + ' €';
-            document.getElementById('summary-discount').textContent = '-' + discSum.toFixed(2) + ' €';
-            document.getElementById('summary-total').textContent = totalSum.toFixed(2) + ' €';
+
+            // Actualizar barra flotante móvil
+            const floatBar = document.getElementById('mobile-floating-cart-bar');
+            document.getElementById('mob-cart-count').textContent = cart.length;
+            document.getElementById('mob-cart-total').textContent = totalSum.toFixed(2) + ' €';
+            
+            if (cart.length > 0) {
+                floatBar.classList.remove('translate-y-full');
+            } else {
+                floatBar.classList.add('translate-y-full');
+                toggleCartDrawer(false);
+            }
+
+            // HTML común del carrito
+            const cartHtml = `
+                <div class="space-y-3 max-h-[35vh] overflow-y-auto pr-1">
+                    ${cart.length === 0 ? '<div class="p-4 bg-[#090d16] rounded-xl border border-dashed border-slate-800 text-center text-slate-500 text-xs">El carrito está vacío</div>' : 
+                        cart.map(item => {
+                            const disc = isClub ? (item.price * item.discount / 100) : 0;
+                            const finalP = item.price - disc;
+                            return `
+                                <div class="p-2.5 bg-[#090d16] rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                                    <div class="pr-2 truncate">
+                                        <span class="text-[9px] text-cyan-400 font-mono font-bold">${item.id}</span>
+                                        <p class="font-bold text-white truncate">${item.desc}</p>
+                                        <span class="text-[10px] text-emerald-400 font-mono">${finalP.toFixed(2)} € (${item.supplier})</span>
+                                    </div>
+                                    <button onclick="removeFromCart('${item.id}')" class="text-rose-400 hover:text-rose-300 p-2 cursor-pointer">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            `;
+                        }).join('')}
+                </div>
+
+                <div class="space-y-1.5 pt-2 border-t border-slate-800">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tipo de Venta</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="setSaleType('Fuera')" id="btn-sale-fuera" class="py-2 px-2 rounded-xl text-xs font-bold ${saleType === 'Fuera' ? 'bg-cyan-500 text-slate-950' : 'bg-[#090d16] text-slate-400 border border-slate-800'} transition cursor-pointer">Fuera</button>
+                        <button type="button" onclick="setSaleType('Club')" id="btn-sale-club" class="py-2 px-2 rounded-xl text-xs font-bold ${saleType === 'Club' ? 'bg-cyan-500 text-slate-950' : 'bg-[#090d16] text-slate-400 border border-slate-800'} transition cursor-pointer">Club</button>
+                    </div>
+                </div>
+
+                <div class="pt-2 border-t border-slate-800 space-y-1 text-xs">
+                    <div class="flex justify-between text-slate-400"><span>Subtotal:</span><span class="text-white font-mono">${baseSum.toFixed(2)} €</span></div>
+                    <div class="flex justify-between text-slate-400"><span>Descuento:</span><span class="text-emerald-400 font-mono">-${discSum.toFixed(2)} €</span></div>
+                    <div class="flex justify-between text-sm font-extrabold text-white pt-1 border-t border-slate-800"><span>Total:</span><span class="text-cyan-400 font-mono">${totalSum.toFixed(2)} €</span></div>
+                </div>
+
+                <button onclick="completeSale()" id="btn-checkout" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider py-3.5 rounded-xl shadow-lg cursor-pointer transition active:scale-[0.98]">
+                    <i class="fa-solid fa-check-circle mr-1"></i> Cobrar y Registrar
+                </button>
+            `;
+
+            // Inyectar en escritorio y en drawer móvil
+            const desktopWrapper = document.getElementById('desktop-cart-wrapper');
+            if(desktopWrapper) desktopWrapper.innerHTML = cartHtml;
+            const sharedContent = document.getElementById('shared-cart-content');
+            if(sharedContent) sharedContent.innerHTML = cartHtml;
         }
 
-        // --- REGISTRAR VENTA SEGURA EN GOOGLE SHEETS ---
+        function toggleCartDrawer(open) {
+            const drawer = document.getElementById('cart-drawer');
+            if (open) drawer.classList.remove('hidden');
+            else drawer.classList.add('hidden');
+        }
+
         async function completeSale() {
-            if (cart.length === 0) return alert('El carrito está vacío. Añade algún producto.');
+            if (cart.length === 0) return alert('El carrito está vacío.');
             const sellerInput = document.getElementById('seller-user').value.trim();
-            if (!sellerInput) return alert('Por favor, introduce tu correo de vendedor.');
+            if (!sellerInput) return alert('Introduce tu correo de vendedor.');
 
             const isClub = saleType === 'Club';
             const itemsPayload = cart.map(item => ({
@@ -557,53 +544,33 @@
                 finalPrice: item.price - (isClub ? (item.price * item.discount / 100) : 0)
             }));
 
-            const btnCheckout = document.getElementById('btn-checkout');
-            btnCheckout.disabled = true;
-            btnCheckout.textContent = "Registrando venta...";
-
             try {
                 const response = await fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({
-                        items: itemsPayload,
-                        saleType: saleType,
-                        seller: sellerInput
-                    })
+                    body: JSON.stringify({ items: itemsPayload, saleType: saleType, seller: sellerInput })
                 });
-
                 const result = await response.json();
 
                 if (result.status === 'success') {
-                    alert(`¡Venta de ${cart.length} artículos registrada con éxito!`);
+                    alert(`¡Venta registrada con éxito!`);
                     cart = [];
-                    renderCart();
+                    toggleCartDrawer(false);
+                    renderCartUI();
                     loadInventoryFromSheet();
                 } else {
                     alert('Error: ' + result.message);
                 }
             } catch (error) {
-                console.error("Error en el registro:", error);
-                alert("Error de comunicación con el servidor al registrar la venta.");
-            } finally {
-                btnCheckout.disabled = false;
-                btnCheckout.innerHTML = `<i class="fa-solid fa-check-circle mr-1.5"></i> Cobrar y Registrar Todo`;
+                alert("Error de comunicación al registrar la venta.");
             }
         }
 
-        // --- INVENTARIO CON FILTRO DE PROVEEDOR ---
         function renderInvChips() {
             const categories = [...new Set(inventory.map(p => p.category))];
             const suppliers = [...new Set(inventory.map(p => p.supplier))];
-
-            document.getElementById('inv-category-chips').innerHTML = 
-                `<button onclick="selectInvCat('')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${invCategory === '' ? 'bg-cyan-500 text-slate-950' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">Todas Cat.</button>` +
-                categories.map(cat => `<button onclick="selectInvCat('${cat}')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${invCategory === cat ? 'bg-cyan-500 text-slate-950' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">${cat}</button>`).join('');
-            
-            document.getElementById('inv-supplier-chips').innerHTML = 
-                `<button onclick="selectInvSupp('')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${invSupplier === '' ? 'bg-blue-600 text-white' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">Todos Prov.</button>` +
-                suppliers.map(s => `<button onclick="selectInvSupp('${s}')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${invSupplier === s ? 'bg-blue-600 text-white' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">${s}</button>`).join('');
-
+            document.getElementById('inv-category-chips').innerHTML = `<button onclick="selectInvCat('')" class="px-2.5 py-1 rounded-lg text-xs font-bold ${invCategory === '' ? 'bg-cyan-500 text-slate-950' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">Todas Cat.</button>` + categories.map(cat => `<button onclick="selectInvCat('${cat}')" class="px-2.5 py-1 rounded-lg text-xs font-bold ${invCategory === cat ? 'bg-cyan-500 text-slate-950' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">${cat}</button>`).join('');
+            document.getElementById('inv-supplier-chips').innerHTML = `<button onclick="selectInvSupp('')" class="px-2.5 py-1 rounded-lg text-xs font-bold ${invSupplier === '' ? 'bg-blue-600 text-white' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">Todos Prov.</button>` + suppliers.map(s => `<button onclick="selectInvSupp('${s}')" class="px-2.5 py-1 rounded-lg text-xs font-bold ${invSupplier === s ? 'bg-blue-600 text-white' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">${s}</button>`).join('');
             renderInventory();
         }
 
@@ -614,58 +581,35 @@
             let list = inventory;
             if (invCategory) list = list.filter(p => p.category === invCategory);
             if (invSupplier) list = list.filter(p => p.supplier === invSupplier);
-
-            document.getElementById('inv-showing-count').textContent = `Mostrando ${list.length} uds`;
-            document.getElementById('inventory-table-body').innerHTML = list.map(p => `
-                <tr class="hover:bg-slate-800/40 transition">
-                    <td class="p-3 font-mono text-cyan-400 font-semibold">${p.id}</td>
-                    <td class="p-3 text-white font-medium">${p.desc}</td>
-                    <td class="p-3 text-slate-400">${p.category}</td>
-                    <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">${p.supplier}</span></td>
-                    <td class="p-3 font-mono">${p.price.toFixed(2)} €</td>
-                    <td class="p-3">
-                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${p.available ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">
-                            ${p.available ? 'Disponible' : 'Vendido'}
-                        </span>
-                    </td>
+            document.getElementById('inv-showing-count').textContent = `${list.length} uds`;
+            document.getElementById('inventory-table-body').innerHTML = inventory.length === 0 ? `<tr><td colspan="6" class="p-6 text-center text-slate-500">Inicia sesión arriba.</td></tr>` : list.map(p => `
+                <tr class="hover:bg-slate-800/40">
+                    <td class="p-2.5 font-mono text-cyan-400 font-bold">${p.id}</td>
+                    <td class="p-2.5 text-white truncate max-w-[140px]">${p.desc}</td>
+                    <td class="p-2.5 text-slate-400">${p.category}</td>
+                    <td class="p-2.5"><span class="px-1.5 py-0.5 rounded text-[9px] bg-blue-500/10 text-blue-400">${p.supplier}</span></td>
+                    <td class="p-2.5 font-mono">${p.price.toFixed(2)} €</td>
+                    <td class="p-2.5"><span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${p.available ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}">${p.available ? 'Disp.' : 'Vendido'}</span></td>
                 </tr>
             `).join('');
         }
 
         function renderSales() {
-            const dateFrom = document.getElementById('sales-date-from').value;
-            const dateTo = document.getElementById('sales-date-to').value;
             let sales = inventory.filter(p => !p.available && p.saleDate);
-            if (dateFrom) sales = sales.filter(p => p.saleDate >= dateFrom);
-            if (dateTo) sales = sales.filter(p => p.saleDate <= dateTo);
-
             const totalAmount = sales.reduce((sum, p) => sum + p.finalPrice, 0);
             document.getElementById('sales-count').textContent = sales.length;
             document.getElementById('sales-total-amount').textContent = totalAmount.toFixed(2) + ' €';
-
-            const tbody = document.getElementById('sales-table-body');
-            if (sales.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500 text-xs">No hay ventas registradas en este filtro.</td></tr>`;
-                return;
-            }
-            tbody.innerHTML = sales.map(p => `
-                <tr class="hover:bg-slate-800/40 transition">
-                    <td class="p-3 font-mono text-cyan-400 font-semibold">${p.id}</td>
-                    <td class="p-3 text-white font-medium">${p.desc}</td>
-                    <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">${p.supplier}</span></td>
-                    <td class="p-3 font-mono text-slate-400">${p.saleDate}</td>
-                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#090d16] border border-slate-800 text-cyan-300">${p.saleType}</span></td>
-                    <td class="p-3 text-slate-400">${p.seller}</td>
-                    <td class="p-3 font-mono font-bold text-emerald-400">${p.finalPrice.toFixed(2)} €</td>
-                    <td class="p-3 text-center">
-                        <span class="text-[10px] text-slate-500">Gestionar en Sheets</span>
-                    </td>
+            document.getElementById('sales-table-body').innerHTML = sales.length === 0 ? `<tr><td colspan="6" class="p-6 text-center text-slate-500 text-xs">Sin ventas registradas.</td></tr>` : sales.map(p => `
+                <tr class="hover:bg-slate-800/40">
+                    <td class="p-2.5 font-mono text-cyan-400 font-bold">${p.id}</td>
+                    <td class="p-2.5 text-white truncate max-w-[120px]">${p.desc}</td>
+                    <td class="p-2.5"><span class="px-1.5 py-0.5 rounded text-[9px] bg-blue-500/10 text-blue-400">${p.supplier}</span></td>
+                    <td class="p-2.5 font-mono text-slate-400">${p.saleDate}</td>
+                    <td class="p-2.5"><span class="px-1.5 py-0.5 rounded text-[9px] bg-slate-800 text-cyan-300">${p.saleType}</span></td>
+                    <td class="p-2.5 font-mono font-bold text-emerald-400">${p.finalPrice.toFixed(2)} €</td>
                 </tr>
             `).join('');
         }
-
-        // Inicializar al abrir la app comprobando el correo y cargando el inventario
-        loadInventoryFromSheet();
     </script>
 </body>
 </html>
