@@ -276,61 +276,55 @@
             return 'Estándar';
         }
 
-        async function loadInventoryFromSheet() {
-            const counterEl = document.getElementById('header-stock-counter');
-            const userEmail = document.getElementById('seller-user').value.trim();
+async function loadInventoryFromSheet() {
+    const counterEl = document.getElementById('header-stock-counter');
+    counterEl.textContent = "Verificando cuenta de Google...";
 
-            if (!userEmail) {
-                alert("Introduce tu email de vendedor autorizado.");
-                counterEl.textContent = "Acceso requerido";
-                return;
-            }
-
-            counterEl.textContent = "Verificando acceso...";
-
-            try {
-                const response = await fetch(`${WEB_APP_URL}?email=${encodeURIComponent(userEmail)}`);
-                const result = await response.json();
-                
-                if (result.status !== 'success') {
-                    alert("Acceso denegado: " + result.message);
-                    counterEl.textContent = "Acceso denegado";
-                    inventory = [];
-                    filterTpvProducts();
-                    return;
-                }
-
-                inventory = result.data.map(row => {
-                    const estadoVal = row['Estado'] ? row['Estado'].toString().toUpperCase() : 'DISPONIBLE';
-                    const isAvailable = estadoVal.includes('DISPONIBLE') || estadoVal.includes('SÍ') || estadoVal.includes('SI') || estadoVal === 'S' || estadoVal === '';
-
-                    return {
-                        id: row['ID'] || '',
-                        supplier: row['AlbaranProveedor'] || 'General',
-                        desc: row['Descripcion'] || '',
-                        category: row['Categoria'] || 'General',
-                        price: parseFloat(row['Precio']) || 0,
-                        discount: parseFloat(row['Descuento_Club']) || 0,
-                        tag: extractTag(row['Descripcion'], row['Categoria']),
-                        available: isAvailable,
-                        saleDate: row['Fecha_Venta'] || '',
-                        saleType: row['Tipo_Venta'] || '',
-                        seller: row['Vendedor'] || '',
-                        finalPrice: parseFloat(row['Precio_Final']) || 0
-                    };
-                });
-
-                updateHeaderStock();
-                filterTpvProducts();
-                renderCartUI();
-                if(!document.getElementById('tab-inventory').classList.contains('hidden')) renderInvChips();
-                alert("¡Acceso concedido! Catálogo sincronizado.");
-            } catch (error) {
-                console.error(error);
-                counterEl.textContent = "Error de conexión";
-                alert("No se pudo conectar con Google Sheets.");
-            }
+    try {
+        const response = await fetch(WEB_APP_URL);
+        const result = await response.json();
+        
+        if (result.status !== 'success') {
+            alert("Acceso denegado: " + result.message);
+            counterEl.textContent = "Acceso no autorizado";
+            return;
         }
+
+        // Guardamos opcionalmente el email autenticado detectado por el servidor
+        window.authenticatedUser = result.user;
+
+        inventory = result.data.map(row => {
+            const estadoVal = row['Estado'] ? row['Estado'].toString().toUpperCase() : 'DISPONIBLE';
+            const isAvailable = estadoVal.includes('DISPONIBLE') || estadoVal.includes('SÍ') || estadoVal.includes('SI') || estadoVal === 'S' || estadoVal === '';
+
+            return {
+                id: row['ID'] || '',
+                supplier: row['AlbaranProveedor'] || 'General',
+                desc: row['Descripcion'] || '',
+                category: row['Categoria'] || 'General',
+                price: parseFloat(row['Precio']) || 0,
+                discount: parseFloat(row['Descuento_Club']) || 0,
+                tag: extractTag(row['Descripcion'], row['Categoria']),
+                available: isAvailable,
+                saleDate: row['Fecha_Venta'] || '',
+                saleType: row['Tipo_Venta'] || '',
+                seller: row['Vendedor'] || '',
+                finalPrice: parseFloat(row['Precio_Final']) || 0
+            };
+        });
+
+        updateHeaderStock();
+        filterTpvProducts();
+        if(!document.getElementById('tab-inventory').classList.contains('hidden')) renderInvChips();
+        counterEl.textContent = `Sesión iniciada como ${result.user}`;
+    } catch (error) {
+        console.error(error);
+        counterEl.textContent = "Error de conexión";
+        alert("No se pudo conectar con Google Sheets.");
+    }
+}
+
+
 
         function updateHeaderStock() {
             const avail = inventory.filter(p => p.available).length;
