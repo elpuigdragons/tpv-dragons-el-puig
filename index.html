@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dragons El Puig · TPV Real Google Sheets</title>
+    <title>Dragons El Puig · TPV Seguro</title>
     <script src="https://cdn.jsdelivr.net/npm/tailwindcss-cdn@3.4.10/tailwindcss.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -24,9 +24,9 @@
             </div>
             <div>
                 <h1 class="text-base font-extrabold tracking-tight text-white flex items-center gap-2">
-                    Dragons El Puig <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">TPV Live</span>
+                    Dragons El Puig <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">TPV Seguro</span>
                 </h1>
-                <p class="text-[11px] text-slate-400 font-medium" id="header-stock-counter">Conectando con Google Sheets...</p>
+                <p class="text-[11px] text-slate-400 font-medium" id="header-stock-counter">Verificando acceso...</p>
             </div>
         </div>
         <div class="flex items-center space-x-2">
@@ -34,7 +34,7 @@
                 <i class="fa-solid fa-sync" id="sync-icon"></i>
             </button>
             <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                <span class="w-1.5 h-1.5 mr-1.5 bg-emerald-500 rounded-full animate-ping"></span> Online
+                <span class="w-1.5 h-1.5 mr-1.5 bg-emerald-500 rounded-full animate-ping"></span> Protegido
             </span>
         </div>
     </header>
@@ -106,7 +106,7 @@
 
                     <div>
                         <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Vendedor (Email Autorizado)</label>
-                        <input type="email" id="seller-user" value="ramontar@gmail.com" class="w-full bg-[#090d16] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+                        <input type="email" id="seller-user" value="ramontar@gmail.com" onchange="loadInventoryFromSheet()" class="w-full bg-[#090d16] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
                     </div>
 
                     <div class="pt-3 border-t border-slate-800/80 space-y-1.5 text-sm">
@@ -246,7 +246,7 @@
 
     <script>
         // ⚠️ PEGA AQUÍ LA URL DE TU APLICACIÓN WEB DE GOOGLE APPS SCRIPT
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxOadKaQSpVFCvYVEp-gqLMqPi0mfg4iSOx9ihtE5vh40NjeR3pOT5FGVbNR5fSnnszeg/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz94B8lxEk__OtOX5UIJWXfd_8QNp7K32r-BVWbd5SpZYEiqwaae_XxsNtuUULLLPYObQ/exec";
 
         let inventory = [];
         let cart = [];
@@ -286,32 +286,48 @@
             return 'Estándar';
         }
 
-        // --- CARGAR INVENTARIO DESDE GOOGLE SHEETS ---
+        // --- CARGAR INVENTARIO SEGURO DESDE GOOGLE SHEETS ---
         async function loadInventoryFromSheet() {
             const counterEl = document.getElementById('header-stock-counter');
             const syncIcon = document.getElementById('sync-icon');
-            counterEl.textContent = "Sincronizando con Google Sheets...";
+            const userEmail = document.getElementById('seller-user').value.trim();
+
+            if (!userEmail) {
+                counterEl.textContent = "Introduce tu email";
+                return;
+            }
+
+            counterEl.textContent = "Verificando acceso...";
             if(syncIcon) syncIcon.classList.add('fa-spin');
 
             try {
-                const response = await fetch(WEB_APP_URL);
-                const rows = await response.json();
+                const response = await fetch(`${WEB_APP_URL}?email=${encodeURIComponent(userEmail)}`);
+                const result = await response.json();
                 
+                if (result.status !== 'success') {
+                    alert("Acceso denegado: " + result.message);
+                    counterEl.textContent = "Acceso no autorizado";
+                    return;
+                }
+
+                const rows = result.data;
                 inventory = rows.map(row => {
-                    const isAvailable = row['Disponible'] ? row['Disponible'].toString().toUpperCase().includes('S') : true;
+                    const estadoVal = row['Estado'] ? row['Estado'].toString().toUpperCase() : 'DISPONIBLE';
+                    const isAvailable = estadoVal.includes('DISPONIBLE') || estadoVal.includes('SÍ') || estadoVal.includes('SI') || estadoVal === 'S' || estadoVal === '';
+
                     return {
                         id: row['ID'] || '',
-                        supplier: row['Albarán Proveedor'] || row['Proveedor'] || 'General',
-                        desc: row['Descripción'] || '',
-                        category: row['Categoría'] || 'General',
-                        price: parseFloat(row['Precio Venta']) || 0,
-                        discount: 15,
-                        tag: extractTag(row['Descripción'], row['Categoría']),
+                        supplier: row['AlbaranProveedor'] || 'General',
+                        desc: row['Descripcion'] || '',
+                        category: row['Categoria'] || 'General',
+                        price: parseFloat(row['Precio']) || 0,
+                        discount: parseFloat(row['Descuento_Club']) || 15,
+                        tag: extractTag(row['Descripcion'], row['Categoria']),
                         available: isAvailable,
-                        saleDate: row['Fecha Venta'] || '',
-                        saleType: row['Tipo Cliente'] || '',
-                        seller: row['Vendido Por'] || '',
-                        finalPrice: parseFloat(row['Precio Final']) || 0
+                        saleDate: row['Fecha_Venta'] || '',
+                        saleType: row['Tipo_Venta'] || '',
+                        seller: row['Vendedor'] || '',
+                        finalPrice: parseFloat(row['Precio_Final']) || 0
                     };
                 });
 
@@ -326,7 +342,7 @@
             } catch (error) {
                 console.error("Error al cargar inventario:", error);
                 counterEl.textContent = "Error de conexión con Sheets";
-                alert("No se pudo conectar con Google Sheets. Comprueba la URL de Apps Script.");
+                alert("No se pudo conectar con Google Sheets de forma segura.");
             } finally {
                 if(syncIcon) syncIcon.classList.remove('fa-spin');
             }
@@ -525,15 +541,13 @@
             document.getElementById('summary-total').textContent = totalSum.toFixed(2) + ' €';
         }
 
-        // --- REGISTRAR VENTA EN GOOGLE SHEETS (CON LISTA BLANCA) ---
+        // --- REGISTRAR VENTA SEGURA EN GOOGLE SHEETS ---
         async function completeSale() {
             if (cart.length === 0) return alert('El carrito está vacío. Añade algún producto.');
             const sellerInput = document.getElementById('seller-user').value.trim();
             if (!sellerInput) return alert('Por favor, introduce tu correo de vendedor.');
 
             const isClub = saleType === 'Club';
-            
-            // Preparar items con sus precios finales calculados
             const itemsPayload = cart.map(item => ({
                 id: item.id,
                 finalPrice: item.price - (isClub ? (item.price * item.discount / 100) : 0)
@@ -541,12 +555,12 @@
 
             const btnCheckout = document.getElementById('btn-checkout');
             btnCheckout.disabled = true;
-            btnCheckout.textContent = "Registrando en Google Sheets...";
+            btnCheckout.textContent = "Registrando venta...";
 
             try {
                 const response = await fetch(WEB_APP_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Evita problemas de CORS preflight en Apps Script
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({
                         items: itemsPayload,
                         saleType: saleType,
@@ -557,10 +571,10 @@
                 const result = await response.json();
 
                 if (result.status === 'success') {
-                    alert(`¡Venta de ${cart.length} artículos registrada con éxito en Google Sheets!`);
+                    alert(`¡Venta de ${cart.length} artículos registrada con éxito!`);
                     cart = [];
                     renderCart();
-                    loadInventoryFromSheet(); // Recargar stock actualizado desde la hoja
+                    loadInventoryFromSheet();
                 } else {
                     alert('Error: ' + result.message);
                 }
@@ -571,10 +585,6 @@
                 btnCheckout.disabled = false;
                 btnCheckout.innerHTML = `<i class="fa-solid fa-check-circle mr-1.5"></i> Cobrar y Registrar Todo`;
             }
-        }
-
-        function undoSale(id) {
-            alert("Para anular una venta y devolver el artículo a disponible, edita temporalmente la celda 'Disponible' a 'SÍ' en tu Google Sheet.");
         }
 
         // --- INVENTARIO CON FILTRO DE PROVEEDOR ---
@@ -650,7 +660,7 @@
             `).join('');
         }
 
-        // Inicializar al abrir la app cargando desde Google Sheets
+        // Inicializar al abrir la app comprobando el correo y cargando el inventario
         loadInventoryFromSheet();
     </script>
 </body>
