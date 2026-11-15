@@ -106,7 +106,11 @@
 
                     <div>
                         <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Vendedor (Email Autorizado)</label>
-                        <input type="email" id="seller-user" value="ramontar@gmail.com" onchange="loadInventoryFromSheet()" class="w-full bg-[#090d16] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+                        <!-- Ahora (vacío y con aviso) -->
+<input type="email" id="seller-user" placeholder="Introduce tu email de acceso..." class="w-full bg-[#090d16] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+<button onclick="loadInventoryFromSheet()" class="mt-2 w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-2 rounded-xl text-xs transition cursor-pointer">
+    Verificar Acceso y Cargar TPV
+</button>
                     </div>
 
                     <div class="pt-3 border-t border-slate-800/80 space-y-1.5 text-sm">
