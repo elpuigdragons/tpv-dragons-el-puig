@@ -7,7 +7,6 @@
     <script src="https://cdn.jsdelivr.net/npm/tailwindcss-cdn@3.4.10/tailwindcss.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- SDK oficial de Google Identity Services para Login -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -32,6 +31,9 @@
             </div>
         </div>
         <div class="flex items-center space-x-2">
+            <button onclick="loadInventoryFromSheet()" title="Sincronizar" class="bg-slate-800/80 hover:bg-slate-700 text-cyan-400 p-2 rounded-xl text-xs transition cursor-pointer">
+                <i class="fa-solid fa-sync" id="sync-icon"></i>
+            </button>
             <span id="auth-status-badge" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
                 <span class="w-1.5 h-1.5 mr-1 bg-amber-500 rounded-full animate-pulse"></span> Sin sesión
             </span>
@@ -63,19 +65,16 @@
                 <!-- Panel de Acceso con Google -->
                 <div id="login-container" class="bg-[#090d16] p-4 rounded-xl border border-slate-800 text-center space-y-3">
                     <p class="text-xs text-slate-300 font-semibold">Identifícate con la cuenta de Gmail autorizada del club:</p>
-                    
-                    <!-- Botón Oficial Google Sign-In -->
                     <div id="g_id_onload"
-                         data-client_id="1094165050392-kdao9urr97gpghd4m306mb1hns7jfstj.apps.googleusercontent.com"
+                         data-client_id="TU_CLIENT_ID_DE_GOOGLE.apps.googleusercontent.com"
                          data-callback="handleCredentialResponse"
                          data-auto_prompt="false">
                     </div>
                     <div class="g_id_signin flex justify-center" data-type="standard" data-shape="pill" data-theme="filled_black" data-text="signin_with"></div>
-                    
                     <p id="logged-user-display" class="text-xs font-mono text-cyan-400 font-bold hidden"></p>
                 </div>
 
-                <!-- Barra de Filtros (Oculta hasta loguearse) -->
+                <!-- Barra de Filtros -->
                 <div id="filter-bar-container" class="hidden justify-between items-center bg-[#090d16] p-2.5 rounded-xl border border-slate-800">
                     <div class="flex items-center space-x-1.5 truncate pr-2">
                         <i class="fa-solid fa-filter text-cyan-400 text-xs"></i>
@@ -109,11 +108,16 @@
         <!-- ================= SECCIÓN INVENTARIO ================= -->
         <section id="tab-inventory" class="hidden bg-[#111827] rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-xl space-y-4">
             <div class="space-y-3 border-b border-slate-800 pb-3">
-                <div class="flex justify-between items-center">
+                <div class="flex justify-between items-center flex-wrap gap-2">
                     <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center space-x-1.5">
-                        <i class="fa-solid fa-warehouse text-cyan-400"></i> <span>Control de Inventario y Proveedores</span>
+                        <i class="fa-solid fa-warehouse text-cyan-400"></i> <span>Control de Inventario</span>
                     </h2>
-                    <span id="inv-showing-count" class="text-xs font-mono text-slate-400"></span>
+                    <div class="flex items-center space-x-2">
+                        <span id="inv-showing-count" class="text-xs font-mono text-slate-400"></span>
+                        <button onclick="sendReportByEmail('inventory')" class="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/30 px-3 py-1.5 rounded-lg text-[11px] font-bold transition cursor-pointer flex items-center gap-1.5">
+                            <i class="fa-solid fa-envelope"></i> Enviar por Email
+                        </button>
+                    </div>
                 </div>
                 <div class="flex flex-col gap-2">
                     <div id="inv-category-chips" class="flex flex-wrap gap-1.5"></div>
@@ -142,11 +146,27 @@
 
         <!-- ================= SECCIÓN HISTORIAL DE VENTAS ================= -->
         <section id="tab-sales" class="hidden bg-[#111827] rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-xl space-y-4">
-            <div class="border-b border-slate-800 pb-3">
+            <div class="flex justify-between items-center flex-wrap gap-2 border-b border-slate-800 pb-3">
                 <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center space-x-1.5">
                     <i class="fa-solid fa-chart-line text-emerald-400"></i> <span>Historial de Ventas</span>
                 </h2>
+                <button onclick="sendReportByEmail('sales')" class="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/30 px-3 py-1.5 rounded-lg text-[11px] font-bold transition cursor-pointer flex items-center gap-1.5">
+                    <i class="fa-solid fa-envelope"></i> Enviar por Email
+                </button>
             </div>
+            
+            <!-- Filtros rápidos en Ventas -->
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Desde Fecha</label>
+                    <input type="date" id="sales-date-from" onchange="renderSales()" class="bg-[#090d16] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white w-full">
+                </div>
+                <div>
+                    <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Hasta Fecha</label>
+                    <input type="date" id="sales-date-to" onchange="renderSales()" class="bg-[#090d16] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white w-full">
+                </div>
+            </div>
+
             <div class="grid grid-cols-2 gap-3 bg-[#090d16] p-3 rounded-xl border border-slate-800">
                 <div>
                     <span class="text-[9px] font-bold text-slate-400 uppercase">Vendidas</span>
@@ -165,13 +185,13 @@
                             <th class="p-2.5">Artículo</th>
                             <th class="p-2.5">Prov.</th>
                             <th class="p-2.5">Fecha</th>
-                            <th class="p-2.5">Tipo</th>
+                            <th class="p-2.5">Tipo / Pago</th>
                             <th class="p-2.5">Total</th>
                             <th class="p-2.5 text-center">Acción</th>
                         </tr>
                     </thead>
                     <tbody id="sales-table-body" class="divide-y divide-slate-800/60 text-xs">
-                        <tr><td colspan="6" class="p-6 text-center text-slate-500 text-xs">Sin registros.</td></tr>
+                        <tr><td colspan="7" class="p-6 text-center text-slate-500 text-xs">Sin registros.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -210,9 +230,9 @@
         </div>
     </div>
 
-    <!-- MODAL DE FILTROS -->
+    <!-- MODAL DE FILTROS DINÁMICOS DE ATRIBUTOS -->
     <div id="filter-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-[#111827] w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-slate-800 p-5 space-y-5 shadow-2xl">
+        <div class="bg-[#111827] w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-slate-800 p-5 space-y-4 shadow-2xl max-h-[85vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
                 <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center space-x-2">
                     <i class="fa-solid fa-sliders text-cyan-400"></i> <span>Filtrar Catálogo</span>
@@ -221,19 +241,24 @@
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
-            <div class="space-y-2">
-                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">1. Categoría</label>
+
+            <!-- Categoría -->
+            <div class="space-y-1.5">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Categoría</label>
                 <div id="modal-category-chips" class="flex flex-wrap gap-1.5"></div>
             </div>
-            <div class="space-y-2">
-                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">2. Subtipo / Color</label>
-                <div id="modal-subfilter-chips" class="flex flex-wrap gap-1.5">
-                    <span class="text-xs text-slate-500 italic">Selecciona categoría...</span>
-                </div>
+
+            <!-- Contenedor de Atributos Dinámicos (Tipo, Mano, Talla/Medida, Color) -->
+            <div id="dynamic-attributes-filters" class="space-y-3 pt-1"></div>
+
+            <div class="flex gap-2 pt-2">
+                <button onclick="resetAllFilters()" class="w-1/3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs uppercase py-3 rounded-xl cursor-pointer transition">
+                    Limpiar
+                </button>
+                <button onclick="applyAndCloseFilters()" class="w-2/3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider py-3 rounded-xl shadow-lg cursor-pointer transition">
+                    Aplicar Filtros
+                </button>
             </div>
-            <button onclick="applyAndCloseFilters()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider py-3 rounded-xl shadow-lg cursor-pointer transition">
-                Aplicar Filtros
-            </button>
         </div>
     </div>
 
@@ -244,13 +269,28 @@
         let authenticatedEmail = '';
         let inventory = [];
         let cart = [];
+        
+        // Estado de filtros dinámicos
         let selectedCategory = '';
-        let selectedTag = '';
+        let selectedAttrs = {
+            tipo: '',
+            mano: '',
+            talla: '',
+            color: ''
+        };
+
+        // Estado de venta
         let saleType = 'Fuera';
+        let paymentType = 'Efectivo';
+
+        // Estado filtros inventario
         let invCategory = '';
         let invSupplier = '';
 
-        // --- MANEJADOR DE GOOGLE SIGN-IN ---
+        // Listas actualmente mostradas en pantalla (para exportar por email)
+        let currentDisplayedInventory = [];
+        let currentDisplayedSales = [];
+
         function handleCredentialResponse(response) {
             try {
                 const base64Url = response.credential.split('.')[1];
@@ -272,36 +312,6 @@
             }
         }
 
-        function extractTag(desc, cat) {
-            if (!desc) return 'Estándar';
-            const d = desc.toUpperCase();
-            if (d.includes('VERDE')) return 'Verde';
-            if (d.includes('ROSA')) return 'Rosa';
-            if (d.includes('SILVER')) return 'Silver';
-            if (d.includes('AMARILLO')) return 'Amarillo';
-            if (d.includes('AZUL')) return 'Azul';
-            if (d.includes('NARANJA')) return 'Naranja';
-            if (d.includes('BLANCO')) return 'Blanco';
-            if (d.includes('NEGRO')) return 'Negro';
-            if (d.includes('ROJA')) return 'Rojo';
-            if (cat === 'Protecciones') {
-                if (d.includes('ESPINILLERAS')) return 'Espinilleras';
-                if (d.includes('GIRDLE')) return 'Girdle';
-                if (d.includes('GUANTES')) return 'Guantes';
-                if (d.includes('CODERAS')) return 'Coderas';
-                if (d.includes('CASCO')) return 'Casco';
-                return 'Otros';
-            }
-            if (cat === 'Accesorios') {
-                if (d.includes('RUEDAS') || d.includes('GRAFF')) return 'Ruedas';
-                if (d.includes('CORDONES')) return 'Cordones';
-                if (d.includes('CINTA')) return 'Cinta';
-                if (d.includes('PUCK')) return 'Pucks';
-                return 'Otros';
-            }
-            return 'Estándar';
-        }
-
         async function loadInventoryFromSheet() {
             if (!authenticatedEmail) {
                 alert("Inicia sesión con Google primero.");
@@ -309,7 +319,9 @@
             }
 
             const counterEl = document.getElementById('header-stock-counter');
-            counterEl.textContent = "Verificando lista blanca...";
+            const syncIcon = document.getElementById('sync-icon');
+            counterEl.textContent = "Sincronizando...";
+            if (syncIcon) syncIcon.classList.add('fa-spin');
 
             try {
                 const response = await fetch(`${WEB_APP_URL}?email=${encodeURIComponent(authenticatedEmail)}`);
@@ -325,17 +337,27 @@
                     const estadoVal = row['Estado'] ? row['Estado'].toString().toUpperCase() : 'DISPONIBLE';
                     const isAvailable = estadoVal.includes('DISPONIBLE') || estadoVal.includes('SÍ') || estadoVal.includes('SI') || estadoVal === 'S' || estadoVal === '';
 
+                    // Leemos los atributos exactos de las columnas (soportando variaciones de nombre)
+                    const attrTipo = (row['Atributo_Tipo'] || row['Atributo_TipoAtributo_Mano'] || '').toString().trim();
+                    const attrMano = (row['Atributo_Mano'] || '').toString().trim();
+                    const attrTalla = (row['Atributo_Talla_Medida'] || '').toString().trim();
+                    const attrColor = (row['Atributo_Color'] || '').toString().trim();
+
                     return {
                         id: row['ID'] || '',
                         supplier: row['AlbaranProveedor'] || 'General',
                         desc: row['Descripcion'] || '',
                         category: row['Categoria'] || 'General',
+                        attrTipo: attrTipo,
+                        attrMano: attrMano,
+                        attrTalla: attrTalla,
+                        attrColor: attrColor,
                         price: parseFloat(row['Precio']) || 0,
                         discount: parseFloat(row['Descuento_Club']) || 0,
-                        tag: extractTag(row['Descripcion'], row['Categoria']),
                         available: isAvailable,
                         saleDate: row['Fecha_Venta'] || '',
                         saleType: row['Tipo_Venta'] || '',
+                        paymentType: row['Tipo_Pago'] || '',
                         seller: row['Vendedor'] || '',
                         finalPrice: parseFloat(row['Precio_Final']) || 0
                     };
@@ -352,6 +374,8 @@
                 console.error(error);
                 counterEl.textContent = "Error de conexión";
                 alert("No se pudo conectar con Google Sheets.");
+            } finally {
+                if (syncIcon) syncIcon.classList.remove('fa-spin');
             }
         }
 
@@ -373,45 +397,95 @@
             if(tabId === 'sales') renderSales();
         }
 
+        // --- SISTEMA DE FILTROS DINÁMICOS DE ATRIBUTOS ---
         function toggleFilterModal(open) {
             const modal = document.getElementById('filter-modal');
             if (open) {
                 modal.classList.remove('hidden');
-                renderModalCategoryChips();
-                renderModalSubfilterChips();
+                renderModalFilters();
             } else {
                 modal.classList.add('hidden');
             }
         }
 
-        function renderModalCategoryChips() {
-            const categories = [...new Set(inventory.map(p => p.category))];
-            const container = document.getElementById('modal-category-chips');
-            if (categories.length === 0) {
-                container.innerHTML = `<span class="text-xs text-slate-500 italic">Inicia sesión primero...</span>`;
-                return;
-            }
-            container.innerHTML = `<button onclick="selectModalCategory('')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${selectedCategory === '' ? 'bg-cyan-500 text-slate-950' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">Todas</button>` +
-                categories.map(cat => `<button onclick="selectModalCategory('${cat}')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${selectedCategory === cat ? 'bg-cyan-500 text-slate-950' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">${cat}</button>`).join('');
+        function renderModalFilters() {
+            const availableItems = inventory.filter(p => p.available && !cart.some(c => c.id === p.id));
+            const categories = [...new Set(availableItems.map(p => p.category).filter(Boolean))];
+            
+            const catContainer = document.getElementById('modal-category-chips');
+            catContainer.innerHTML = `<button onclick="selectFilterCategory('')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${selectedCategory === '' ? 'bg-cyan-500 text-slate-950' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">Todas</button>` +
+                categories.map(cat => `<button onclick="selectFilterCategory('${cat}')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${selectedCategory === cat ? 'bg-cyan-500 text-slate-950' : 'bg-[#090d16] text-slate-300 border border-slate-800'}">${cat}</button>`).join('');
+
+            // Filtrar base por categoría seleccionada para mostrar solo atributos relevantes con stock
+            const baseItems = selectedCategory ? availableItems.filter(p => p.category === selectedCategory) : availableItems;
+
+            const attrConfigs = [
+                { key: 'tipo', field: 'attrTipo', label: 'Tipo' },
+                { key: 'mano', field: 'attrMano', label: 'Mano / Orientación' },
+                { key: 'talla', field: 'attrTalla', label: 'Talla / Medida' },
+                { key: 'color', field: 'attrColor', label: 'Color' }
+            ];
+
+            const attrContainer = document.getElementById('dynamic-attributes-filters');
+            let html = '';
+
+            attrConfigs.forEach(cfg => {
+                const uniqueValues = [...new Set(baseItems.map(p => p[cfg.field]).filter(val => val !== ''))];
+                if (uniqueValues.length > 0) {
+                    html += `
+                        <div class="space-y-1.5 border-t border-slate-800/80 pt-2.5">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">${cfg.label}</label>
+                            <div class="flex flex-wrap gap-1.5">
+                                <button onclick="selectFilterAttr('${cfg.key}', '')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${selectedAttrs[cfg.key] === '' ? 'bg-blue-600 text-white' : 'bg-[#090d16] text-slate-400 border border-slate-800'}">Todos</button>
+                                ${uniqueValues.map(val => `
+                                    <button onclick="selectFilterAttr('${cfg.key}', '${val}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${selectedAttrs[cfg.key] === val ? 'bg-blue-600 text-white' : 'bg-[#090d16] text-slate-400 border border-slate-800'}">${val}</button>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            attrContainer.innerHTML = html || `<p class="text-xs text-slate-500 italic pt-2">No hay atributos adicionales definidos para esta selección.</p>`;
         }
 
-        function selectModalCategory(cat) { selectedCategory = cat; selectedTag = ''; renderModalCategoryChips(); renderModalSubfilterChips(); }
-
-        function renderModalSubfilterChips() {
-            const container = document.getElementById('modal-subfilter-chips');
-            if (!selectedCategory) { container.innerHTML = `<span class="text-xs text-slate-500 italic">Selecciona categoría...</span>`; return; }
-            const tags = [...new Set(inventory.filter(p => p.available && !cart.some(c => c.id === p.id) && p.category === selectedCategory).map(p => p.tag))];
-            container.innerHTML = `<button onclick="selectModalTag('')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${selectedTag === '' ? 'bg-blue-600 text-white' : 'bg-[#090d16] text-slate-400 border border-slate-800'}">Todos</button>` +
-                tags.map(t => `<button onclick="selectModalTag('${t}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${selectedTag === t ? 'bg-blue-600 text-white' : 'bg-[#090d16] text-slate-400 border border-slate-800'}">${t}</button>`).join('');
+        function selectFilterCategory(cat) {
+            selectedCategory = cat;
+            selectedAttrs = { tipo: '', mano: '', talla: '', color: '' };
+            renderModalFilters();
         }
 
-        function selectModalTag(tag) { selectedTag = tag; renderModalSubfilterChips(); }
-        function applyAndCloseFilters() { toggleFilterModal(false); filterTpvProducts(); }
+        function selectFilterAttr(key, value) {
+            selectedAttrs[key] = value;
+            renderModalFilters();
+        }
+
+        function resetAllFilters() {
+            selectedCategory = '';
+            selectedAttrs = { tipo: '', mano: '', talla: '', color: '' };
+            renderModalFilters();
+        }
+
+        function applyAndCloseFilters() {
+            toggleFilterModal(false);
+            const activeParts = [];
+            if (selectedCategory) activeParts.push(selectedCategory);
+            if (selectedAttrs.tipo) activeParts.push(selectedAttrs.tipo);
+            if (selectedAttrs.mano) activeParts.push(selectedAttrs.mano);
+            if (selectedAttrs.talla) activeParts.push(selectedAttrs.talla);
+            if (selectedAttrs.color) activeParts.push(selectedAttrs.color);
+
+            document.getElementById('active-filter-label').textContent = activeParts.length > 0 ? activeParts.join(' · ') : 'Todas las categorías';
+            filterTpvProducts();
+        }
 
         function filterTpvProducts() {
             let filtered = inventory.filter(p => p.available && !cart.some(c => c.id === p.id));
             if (selectedCategory) filtered = filtered.filter(p => p.category === selectedCategory);
-            if (selectedTag) filtered = filtered.filter(p => p.tag === selectedTag);
+            if (selectedAttrs.tipo) filtered = filtered.filter(p => p.attrTipo === selectedAttrs.tipo);
+            if (selectedAttrs.mano) filtered = filtered.filter(p => p.attrMano === selectedAttrs.mano);
+            if (selectedAttrs.talla) filtered = filtered.filter(p => p.attrTalla === selectedAttrs.talla);
+            if (selectedAttrs.color) filtered = filtered.filter(p => p.attrColor === selectedAttrs.color);
 
             document.getElementById('filtered-count-badge').textContent = `${filtered.length} uds`;
             const list = document.getElementById('tpv-products-list');
@@ -421,36 +495,50 @@
                 return;
             }
             if (filtered.length === 0) {
-                list.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No hay stock con este filtro.</p>`;
+                list.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No hay stock disponible con estos filtros.</p>`;
                 return;
             }
 
             const grouped = {};
             filtered.forEach(p => {
-                if (!grouped[p.desc]) grouped[p.desc] = { sample: p, count: 0 };
-                grouped[p.desc].count++;
+                // Agrupamos por descripción + atributos para no mezclar tallas/manos distintas
+                const key = `${p.desc}|${p.attrTipo}|${p.attrMano}|${p.attrTalla}|${p.attrColor}`;
+                if (!grouped[key]) grouped[key] = { sample: p, count: 0 };
+                grouped[key].count++;
             });
 
-            list.innerHTML = Object.values(grouped).map(({ sample, count }) => `
-                <div onclick='addToCart(${JSON.stringify(sample.desc)})' class="p-3 bg-[#090d16] border border-slate-800 rounded-xl hover:border-cyan-500/80 transition flex justify-between items-center cursor-pointer group active:scale-[0.99]">
-                    <div class="pr-2 truncate">
-                        <div class="flex items-center gap-1.5 mb-1">
-                            <span class="text-[9px] text-cyan-400 font-mono font-bold">${sample.category}</span>
-                            <span class="text-[9px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-300 font-semibold">${count} disp.</span>
-                            <span class="text-[9px] px-1.5 py-0.2 rounded-full bg-blue-500/10 text-blue-400">${sample.supplier}</span>
+            list.innerHTML = Object.values(grouped).map(({ sample, count }) => {
+                const badges = [sample.attrTipo, sample.attrMano, sample.attrTalla, sample.attrColor].filter(Boolean);
+                return `
+                    <div onclick='addToCart(${JSON.stringify(sample)})' class="p-3 bg-[#090d16] border border-slate-800 rounded-xl hover:border-cyan-500/80 transition flex justify-between items-center cursor-pointer group active:scale-[0.99]">
+                        <div class="pr-2 truncate">
+                            <div class="flex items-center flex-wrap gap-1 mb-1">
+                                <span class="text-[9px] text-cyan-400 font-mono font-bold">${sample.category}</span>
+                                <span class="text-[9px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-300 font-semibold">${count} disp.</span>
+                                <span class="text-[9px] px-1.5 py-0.2 rounded-full bg-blue-500/10 text-blue-400">${sample.supplier}</span>
+                                ${badges.map(b => `<span class="text-[9px] px-1.5 py-0.2 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20">${b}</span>`).join('')}
+                            </div>
+                            <h4 class="text-xs font-bold text-white group-hover:text-cyan-300 truncate">${sample.desc}</h4>
+                            <span class="text-xs font-mono text-slate-300">${sample.price.toFixed(2)} €</span>
                         </div>
-                        <h4 class="text-xs font-bold text-white group-hover:text-cyan-300 truncate">${sample.desc}</h4>
-                        <span class="text-xs font-mono text-slate-300">${sample.price.toFixed(2)} €</span>
+                        <span class="bg-cyan-500/10 text-cyan-400 px-3 py-2 rounded-xl text-xs font-bold border border-cyan-500/20 group-hover:bg-cyan-500 group-hover:text-slate-950 transition shrink-0">
+                            <i class="fa-solid fa-plus"></i>
+                        </span>
                     </div>
-                    <span class="bg-cyan-500/10 text-cyan-400 px-3 py-2 rounded-xl text-xs font-bold border border-cyan-500/20 group-hover:bg-cyan-500 group-hover:text-slate-950 transition shrink-0">
-                        <i class="fa-solid fa-plus"></i>
-                    </span>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
-        function addToCart(desc) {
-            const product = inventory.find(p => p.desc === desc && p.available && !cart.some(c => c.id === p.id));
+        function addToCart(sample) {
+            const product = inventory.find(p => 
+                p.desc === sample.desc && 
+                p.attrTipo === sample.attrTipo &&
+                p.attrMano === sample.attrMano &&
+                p.attrTalla === sample.attrTalla &&
+                p.attrColor === sample.attrColor &&
+                p.available && 
+                !cart.some(c => c.id === p.id)
+            );
             if (!product) return alert('No quedan más unidades.');
             cart.push(product);
             renderCartUI();
@@ -465,17 +553,11 @@
 
         function setSaleType(type) {
             saleType = type;
-            const btnFuera = document.getElementById('btn-sale-fuera');
-            const btnClub = document.getElementById('btn-sale-club');
-            if (btnFuera && btnClub) {
-                if (type === 'Fuera') {
-                    btnFuera.className = "py-2 px-2 rounded-xl text-xs font-bold bg-cyan-500 text-slate-950 transition cursor-pointer";
-                    btnClub.className = "py-2 px-2 rounded-xl text-xs font-bold bg-[#090d16] text-slate-400 border border-slate-800 transition cursor-pointer";
-                } else {
-                    btnClub.className = "py-2 px-2 rounded-xl text-xs font-bold bg-cyan-500 text-slate-950 transition cursor-pointer";
-                    btnFuera.className = "py-2 px-2 rounded-xl text-xs font-bold bg-[#090d16] text-slate-400 border border-slate-800 transition cursor-pointer";
-                }
-            }
+            renderCartUI();
+        }
+
+        function setPaymentType(type) {
+            paymentType = type;
             renderCartUI();
         }
 
@@ -502,7 +584,7 @@
             }
 
             const cartHtml = `
-                <div class="space-y-3 max-h-[35vh] overflow-y-auto pr-1">
+                <div class="space-y-3 max-h-[30vh] overflow-y-auto pr-1">
                     ${cart.length === 0 ? '<div class="p-4 bg-[#090d16] rounded-xl border border-dashed border-slate-800 text-center text-slate-500 text-xs">El carrito está vacío</div>' : 
                         cart.map(item => {
                             const disc = isClub ? (item.price * item.discount / 100) : 0;
@@ -522,11 +604,25 @@
                         }).join('')}
                 </div>
 
-                <div class="space-y-1.5 pt-2 border-t border-slate-800">
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tipo de Venta</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button type="button" onclick="setSaleType('Fuera')" id="btn-sale-fuera" class="py-2 px-2 rounded-xl text-xs font-bold ${saleType === 'Fuera' ? 'bg-cyan-500 text-slate-950' : 'bg-[#090d16] text-slate-400 border border-slate-800'} transition cursor-pointer">Fuera</button>
-                        <button type="button" onclick="setSaleType('Club')" id="btn-sale-club" class="py-2 px-2 rounded-xl text-xs font-bold ${saleType === 'Club' ? 'bg-cyan-500 text-slate-950' : 'bg-[#090d16] text-slate-400 border border-slate-800'} transition cursor-pointer">Club</button>
+                <div class="space-y-2.5 pt-2 border-t border-slate-800">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Tipo de Venta</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" onclick="setSaleType('Fuera')" class="py-2 px-2 rounded-xl text-xs font-bold ${saleType === 'Fuera' ? 'bg-cyan-500 text-slate-950' : 'bg-[#090d16] text-slate-400 border border-slate-800'} transition cursor-pointer">Normal (Fuera)</button>
+                            <button type="button" onclick="setSaleType('Club')" class="py-2 px-2 rounded-xl text-xs font-bold ${saleType === 'Club' ? 'bg-cyan-500 text-slate-950' : 'bg-[#090d16] text-slate-400 border border-slate-800'} transition cursor-pointer">Club (Dto.)</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Método de Pago</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" onclick="setPaymentType('Efectivo')" class="py-2 px-2 rounded-xl text-xs font-bold ${paymentType === 'Efectivo' ? 'bg-emerald-500 text-slate-950' : 'bg-[#090d16] text-slate-400 border border-slate-800'} transition cursor-pointer">
+                                <i class="fa-solid fa-money-bill-wave mr-1"></i> Efectivo
+                            </button>
+                            <button type="button" onclick="setPaymentType('Tarjeta')" class="py-2 px-2 rounded-xl text-xs font-bold ${paymentType === 'Tarjeta' ? 'bg-emerald-500 text-slate-950' : 'bg-[#090d16] text-slate-400 border border-slate-800'} transition cursor-pointer">
+                                <i class="fa-solid fa-credit-card mr-1"></i> Tarjeta
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -536,8 +632,8 @@
                     <div class="flex justify-between text-sm font-extrabold text-white pt-1 border-t border-slate-800"><span>Total:</span><span class="text-cyan-400 font-mono">${totalSum.toFixed(2)} €</span></div>
                 </div>
 
-                <button onclick="completeSale()" id="btn-checkout" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider py-3.5 rounded-xl shadow-lg cursor-pointer transition active:scale-[0.98]">
-                    <i class="fa-solid fa-check-circle mr-1"></i> Cobrar y Registrar
+                <button onclick="completeSale()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider py-3.5 rounded-xl shadow-lg cursor-pointer transition active:scale-[0.98]">
+                    <i class="fa-solid fa-check-circle mr-1"></i> Cobrar (${paymentType})
                 </button>
             `;
 
@@ -567,12 +663,17 @@
                 const response = await fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ items: itemsPayload, saleType: saleType, seller: authenticatedEmail })
+                    body: JSON.stringify({ 
+                        items: itemsPayload, 
+                        saleType: saleType, 
+                        paymentType: paymentType,
+                        seller: authenticatedEmail 
+                    })
                 });
                 const result = await response.json();
 
                 if (result.status === 'success') {
-                    alert(`¡Venta registrada con éxito!`);
+                    alert(`¡Venta (${paymentType}) registrada con éxito!`);
                     cart = [];
                     toggleCartDrawer(false);
                     renderCartUI();
@@ -585,6 +686,7 @@
             }
         }
 
+        // --- INVENTARIO ---
         function renderInvChips() {
             const categories = [...new Set(inventory.map(p => p.category))];
             const suppliers = [...new Set(inventory.map(p => p.supplier))];
@@ -600,6 +702,8 @@
             let list = inventory;
             if (invCategory) list = list.filter(p => p.category === invCategory);
             if (invSupplier) list = list.filter(p => p.supplier === invSupplier);
+            currentDisplayedInventory = list;
+
             document.getElementById('inv-showing-count').textContent = `${list.length} uds`;
             document.getElementById('inventory-table-body').innerHTML = inventory.length === 0 ? `<tr><td colspan="6" class="p-6 text-center text-slate-500">Inicia sesión con Google.</td></tr>` : list.map(p => `
                 <tr class="hover:bg-slate-800/40">
@@ -613,59 +717,164 @@
             `).join('');
         }
 
+        // --- VENTAS Y ANULACIÓN ---
         function renderSales() {
-    let sales = inventory.filter(p => !p.available && p.saleDate);
-    const totalAmount = sales.reduce((sum, p) => sum + p.finalPrice, 0);
-    document.getElementById('sales-count').textContent = sales.length;
-    document.getElementById('sales-total-amount').textContent = totalAmount.toFixed(2) + ' €';
-    
-    document.getElementById('sales-table-body').innerHTML = sales.length === 0 
-        ? `<tr><td colspan="7" class="p-6 text-center text-slate-500 text-xs">Sin ventas registradas.</td></tr>` 
-        : sales.map(p => `
-            <tr class="hover:bg-slate-800/40">
-                <td class="p-2.5 font-mono text-cyan-400 font-bold">${p.id}</td>
-                <td class="p-2.5 text-white truncate max-w-[120px]">${p.desc}</td>
-                <td class="p-2.5"><span class="px-1.5 py-0.5 rounded text-[9px] bg-blue-500/10 text-blue-400">${p.supplier}</span></td>
-                <td class="p-2.5 font-mono text-slate-400">${p.saleDate}</td>
-                <td class="p-2.5"><span class="px-1.5 py-0.5 rounded text-[9px] bg-slate-800 text-cyan-300">${p.saleType}</span></td>
-                <td class="p-2.5 font-mono font-bold text-emerald-400">${p.finalPrice.toFixed(2)} €</td>
-                <td class="p-2.5 text-center">
-                    <button onclick="cancelSale('${p.id}')" title="Anular venta / Devolver al stock" class="bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white border border-rose-500/20 px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition cursor-pointer">
-                        <i class="fa-solid fa-rotate-left"></i> Anular
-                    </button>
-                </td>
-            </tr>
-        `).join('');
-}
+            const dateFrom = document.getElementById('sales-date-from').value;
+            const dateTo = document.getElementById('sales-date-to').value;
+            let sales = inventory.filter(p => !p.available && p.saleDate);
+            if (dateFrom) sales = sales.filter(p => p.saleDate >= dateFrom);
+            if (dateTo) sales = sales.filter(p => p.saleDate <= dateTo);
+            
+            currentDisplayedSales = sales;
+
+            const totalAmount = sales.reduce((sum, p) => sum + p.finalPrice, 0);
+            document.getElementById('sales-count').textContent = sales.length;
+            document.getElementById('sales-total-amount').textContent = totalAmount.toFixed(2) + ' €';
+            document.getElementById('sales-table-body').innerHTML = sales.length === 0 ? `<tr><td colspan="7" class="p-6 text-center text-slate-500 text-xs">Sin ventas registradas.</td></tr>` : sales.map(p => `
+                <tr class="hover:bg-slate-800/40">
+                    <td class="p-2.5 font-mono text-cyan-400 font-bold">${p.id}</td>
+                    <td class="p-2.5 text-white truncate max-w-[120px]">${p.desc}</td>
+                    <td class="p-2.5"><span class="px-1.5 py-0.5 rounded text-[9px] bg-blue-500/10 text-blue-400">${p.supplier}</span></td>
+                    <td class="p-2.5 font-mono text-slate-400">${p.saleDate}</td>
+                    <td class="p-2.5">
+                        <span class="px-1.5 py-0.5 rounded text-[9px] bg-slate-800 text-cyan-300 block w-fit mb-0.5">${p.saleType}</span>
+                        ${p.paymentType ? `<span class="px-1.5 py-0.5 rounded text-[9px] bg-emerald-500/10 text-emerald-400">${p.paymentType}</span>` : ''}
+                    </td>
+                    <td class="p-2.5 font-mono font-bold text-emerald-400">${p.finalPrice.toFixed(2)} €</td>
+                    <td class="p-2.5 text-center">
+                        <button onclick="cancelSale('${p.id}')" title="Anular venta" class="bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white border border-rose-500/20 px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition cursor-pointer">
+                            <i class="fa-solid fa-rotate-left"></i> Anular
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
 
         async function cancelSale(id) {
-    if (!authenticatedEmail) return alert('Sesión no iniciada.');
-    if (!confirm(`¿Seguro que deseas anular la venta del artículo ${id} y devolverlo al stock disponible?`)) return;
+            if (!authenticatedEmail) return alert('Sesión no iniciada.');
+            if (!confirm(`¿Seguro que deseas anular la venta del artículo ${id} y devolverlo al stock?`)) return;
 
-    try {
-        const response = await fetch(WEB_APP_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ 
-                action: 'cancel', 
-                id: id, 
-                seller: authenticatedEmail 
-            })
-        });
-        const result = await response.json();
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'cancel', id: id, seller: authenticatedEmail })
+                });
+                const result = await response.json();
 
-        if (result.status === 'success') {
-            alert('Venta anulada. El artículo vuelve a estar disponible en el TPV.');
-            loadInventoryFromSheet();
-        } else {
-            alert('Error: ' + result.message);
+                if (result.status === 'success') {
+                    alert('Venta anulada. El artículo vuelve a estar disponible.');
+                    loadInventoryFromSheet();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                alert("Error de comunicación al anular la venta.");
+            }
         }
-    } catch (error) {
-        console.error(error);
-        alert("Error de comunicación al anular la venta.");
-    }
-}
-        
+
+        // --- ENVÍO DE INFORMES POR EMAIL ---
+        async function sendReportByEmail(type) {
+            if (!authenticatedEmail) return alert('Inicia sesión con Google primero.');
+
+            const recipient = prompt("Introduce el correo electrónico al que deseas enviar el informe:", authenticatedEmail);
+            if (!recipient) return;
+
+            let subject = '';
+            let htmlBody = '';
+
+            if (type === 'inventory') {
+                if (currentDisplayedInventory.length === 0) return alert('No hay datos de inventario mostrados para enviar.');
+                subject = `Informe de Inventario - Dragons El Puig (${currentDisplayedInventory.length} uds)`;
+                htmlBody = `
+                    <h2>Control de Inventario - Tienda Dragons El Puig</h2>
+                    <p>Generado por: ${authenticatedEmail} | Registros mostrados: ${currentDisplayedInventory.length}</p>
+                    <table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; font-family: Arial, sans-serif; font-size: 12px;">
+                        <thead style="background-color: #0f172a; color: #ffffff;">
+                            <tr>
+                                <th>ID</th>
+                                <th>Descripción</th>
+                                <th>Categoría</th>
+                                <th>Proveedor</th>
+                                <th>Precio</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${currentDisplayedInventory.map(p => `
+                                <tr>
+                                    <td>${p.id}</td>
+                                    <td>${p.desc}</td>
+                                    <td>${p.category}</td>
+                                    <td>${p.supplier}</td>
+                                    <td>${p.price.toFixed(2)} €</td>
+                                    <td>${p.available ? 'Disponible' : 'Vendido'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } else if (type === 'sales') {
+                if (currentDisplayedSales.length === 0) return alert('No hay datos de ventas mostrados para enviar.');
+                const totalCaja = currentDisplayedSales.reduce((sum, p) => sum + p.finalPrice, 0);
+                subject = `Informe de Ventas - Dragons El Puig (Total: ${totalCaja.toFixed(2)} €)`;
+                htmlBody = `
+                    <h2>Historial de Ventas - Tienda Dragons El Puig</h2>
+                    <p>Generado por: ${authenticatedEmail} | Unidades: ${currentDisplayedSales.length} | <strong>Caja Total: ${totalCaja.toFixed(2)} €</strong></p>
+                    <table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; font-family: Arial, sans-serif; font-size: 12px;">
+                        <thead style="background-color: #0f172a; color: #ffffff;">
+                            <tr>
+                                <th>ID</th>
+                                <th>Artículo</th>
+                                <th>Proveedor</th>
+                                <th>Fecha</th>
+                                <th>Tipo Venta</th>
+                                <th>Método Pago</th>
+                                <th>Vendedor</th>
+                                <th>Importe Final</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${currentDisplayedSales.map(p => `
+                                <tr>
+                                    <td>${p.id}</td>
+                                    <td>${p.desc}</td>
+                                    <td>${p.supplier}</td>
+                                    <td>${p.saleDate}</td>
+                                    <td>${p.saleType}</td>
+                                    <td>${p.paymentType || '-'}</td>
+                                    <td>${p.seller}</td>
+                                    <td><strong>${p.finalPrice.toFixed(2)} €</strong></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        action: 'sendEmail',
+                        seller: authenticatedEmail,
+                        recipient: recipient,
+                        subject: subject,
+                        htmlBody: htmlBody
+                    })
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    alert(result.message);
+                } else {
+                    alert('Error al enviar correo: ' + result.message);
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Error de conexión al intentar enviar el correo.");
+            }
+        }
     </script>
 </body>
 </html>
